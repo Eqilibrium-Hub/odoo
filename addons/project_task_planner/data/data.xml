@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+<!--        Task Planner server action for Internal projects-->
+        <record id="task_planner_server_action" model="ir.actions.server">
+            <field name="name">Task Planner</field>
+            <field name="model_id" ref="model_project_task_planner"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = model.start_task_planner()
+            </field>
+        </record>
+
+<!--        Task Planner server action for Solar projects-->
+        <record id="solar_project_task_planner_server_action" model="ir.actions.server">
+            <field name="name">Solar projectTask Planner</field>
+            <field name="model_id" ref="model_project_task_planner"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = model.start_solar_project_task_planner()
+            </field>
+        </record>
+    </data>
+</odoo>

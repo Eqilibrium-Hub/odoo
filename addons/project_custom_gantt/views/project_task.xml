@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="view_project_task_gantt_custom" model="ir.ui.view">
+            <field name="name">project.task.gantt_custom</field>
+            <field name="model">project.task</field>
+            <field name="arch" type="xml">
+                <gantt_custom string="Project Tasks"
+                              start_date="date_assign"
+                              end_date="date_deadline"
+                              group_by="project_id" />
+            </field>
+        </record>
+         <record id="start_date_gant" model="ir.ui.view">
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='date_deadline']" position="after">
+                    <field name="date_assign"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="project.action_view_all_task"
+                model="ir.actions.act_window">
+            <field name="view_mode">kanban,tree,form,calendar,pivot,graph,activity,gantt_custom</field>
+        </record>
+
+    </data>
+</odoo>
