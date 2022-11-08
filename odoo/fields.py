@@ -2258,7 +2258,7 @@ class Image(Binary):
     :param int max_height: the maximum height of the image (default: ``0``, no limit)
     :param bool verify_resolution: whether the image resolution should be verified
         to ensure it doesn't go over the maximum image resolution (default: ``True``).
-        See :class:`odoo.tools.image.ImageProcess` for maximum image resolution (default: ``45e6``).
+        See :class:`odoo.tools.image.ImageProcess` for maximum image resolution (default: ``50e6``).
 
     .. note::
 
@@ -3734,6 +3734,8 @@ class Many2many(_RelationalMulti):
             """.format(rel=self.relation, id1=self.column1, id2=self.column2)
             cr.execute(query, ['RELATION BETWEEN %s AND %s' % (model._table, comodel._table)])
             _schema.debug("Create table %r: m2m relation between %r and %r", self.relation, model._table, comodel._table)
+            model.pool.post_init(self.update_db_foreign_keys, model)
+            return True
 
         model.pool.post_init(self.update_db_foreign_keys, model)
 
@@ -3796,7 +3798,7 @@ class Many2many(_RelationalMulti):
 
         # determine old and new relation {x: ys}
         set = OrderedSet
-        ids = {rid for recs, cs in records_commands_list for rid in recs.ids}
+        ids = set(rid for recs, cs in records_commands_list for rid in recs.ids)
         records = model.browse(ids)
 
         if self.store:

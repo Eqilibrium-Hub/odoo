@@ -45,7 +45,7 @@ class PosOrder(models.Model):
             del pack_lot['id']
 
         for order_line_id, pack_lot_ids in groupby(pack_lots, key=lambda x:x['order_line']):
-            next(order_line for order_line in order_lines if order_line['id'] == order_line_id)['pack_lot_ids'] = list(pack_lots)
+            next(order_line for order_line in order_lines if order_line['id'] == order_line_id)['pack_lot_ids'] = list(pack_lot_ids)
 
     def _get_fields_for_order_line(self):
         fields = super(PosOrder, self)._get_fields_for_order_line()
@@ -87,6 +87,8 @@ class PosOrder(models.Model):
             del order_line['id']
             if not 'pack_lot_ids' in order_line:
                 order_line['pack_lot_ids'] = []
+            else:
+                order_line['pack_lot_ids'] = [[0, 0, lot] for lot in order_line['pack_lot_ids']]
             extended_order_lines.append([0, 0, order_line])
 
         for order_id, order_lines in groupby(extended_order_lines, key=lambda x:x[2]['order_id']):
@@ -104,14 +106,7 @@ class PosOrder(models.Model):
             'payment_status'
             ]
 
-    def _get_payment_lines(self, orders):
-        """Add account_bank_statement_lines to the orders.
-
-        The function doesn't return anything but adds the results directly to the orders.
-
-        :param orders: orders for which the payment_lines are to be requested.
-        :type orders: pos.order.
-        """
+    def _get_payments_lines_list(self, orders):
         payment_lines = self.env['pos.payment'].search_read(
                 domain = [('pos_order_id', 'in', [po['id'] for po in orders])],
                 fields = self._get_fields_for_payment_lines())
@@ -123,11 +118,23 @@ class PosOrder(models.Model):
 
             del payment_line['id']
             extended_payment_lines.append([0, 0, payment_line])
+        return extended_payment_lines
+
+    def _get_payment_lines(self, orders):
+        """Add account_bank_statement_lines to the orders.
+
+        The function doesn't return anything but adds the results directly to the orders.
+
+        :param orders: orders for which the payment_lines are to be requested.
+        :type orders: pos.order.
+        """
+        extended_payment_lines = self._get_payments_lines_list(orders)
         for order_id, payment_lines in groupby(extended_payment_lines, key=lambda x:x[2]['pos_order_id']):
             next(order for order in orders if order['id'] == order_id[0])['statement_ids'] = list(payment_lines)
 
     def _get_fields_for_draft_order(self):
-        return [
+        fields = super(PosOrder, self)._get_fields_for_draft_order()
+        fields.extend([
                     'id',
                     'pricelist_id',
                     'partner_id',
@@ -141,7 +148,8 @@ class PosOrder(models.Model):
                     'table_id',
                     'to_invoice',
                     'multiprint_resume',
-                    ]
+                    ])
+        return fields
 
     @api.model
     def get_table_draft_orders(self, table_id):
@@ -155,8 +163,8 @@ class PosOrder(models.Model):
         :returns: list -- list of dict representing the table orders
         """
         table_orders = self.search_read(
-                domain = [('state', '=', 'draft'), ('table_id', '=', table_id)],
-                fields = self._get_fields_for_draft_order())
+                domain=[('state', '=', 'draft'), ('table_id', '=', table_id)],
+                fields=self._get_fields_for_draft_order())
 
         self._get_order_lines(table_orders)
         self._get_payment_lines(table_orders)
@@ -175,6 +183,8 @@ class PosOrder(models.Model):
                 order['partner_id'] = order['partner_id'][0]
             if order['table_id']:
                 order['table_id'] = order['table_id'][0]
+            if 'employee_id' in order:
+                order['employee_id'] = order['employee_id'][0] if order['employee_id'] else False
 
             if not 'lines' in order:
                 order['lines'] = []

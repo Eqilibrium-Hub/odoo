@@ -5,8 +5,8 @@
 # Translators:
 # Massimo Bianchi <bianchi.massimo@gmail.com>, 2021
 # Paolo Valier, 2021
-# Martin Trigaux, 2022
 # Friederike Fasterling-Nesselbosch, 2022
+# Martin Trigaux, 2022
 # Sergio Zanchetta <primes2h@gmail.com>, 2022
 # 
 msgid ""
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: it\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #. module: web
 #. openerp-web
@@ -434,6 +434,13 @@ msgstr "Accesso a tutte le applicazioni Enterprise"
 #. openerp-web
 #: code:addons/web/static/src/legacy/xml/base.xml:0
 #, python-format
+msgid "Action"
+msgstr "Azione"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/legacy/xml/base.xml:0
+#, python-format
 msgid "Action ID:"
 msgstr "ID azione:"
 
@@ -576,6 +583,13 @@ msgstr "Aggiungi etichetta"
 #, python-format
 msgid "Add to Favorites"
 msgstr "Aggiungi a preferiti"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/legacy/xml/base.xml:0
+#, python-format
+msgid "Additional actions"
+msgstr ""
 
 #. module: web
 #. openerp-web
@@ -1050,7 +1064,7 @@ msgstr "Scegli file"
 #: code:addons/web/static/src/core/debug/debug_menu.js:0
 #, python-format
 msgid "Choose a debug command..."
-msgstr ""
+msgstr "Scegli un comando debug..."
 
 #. module: web
 #. openerp-web
@@ -1771,7 +1785,7 @@ msgstr "Modifica fase"
 #: code:addons/web/static/src/views/debug_items.js:0
 #, python-format
 msgid "Edit View: "
-msgstr ""
+msgstr "Vista di modifica:"
 
 #. module: web
 #. openerp-web
@@ -2662,8 +2676,8 @@ msgstr "Testo multiriga"
 #. openerp-web
 #: code:addons/web/static/src/webclient/user_menu/user_menu_items.js:0
 #, python-format
-msgid "My Odoo.com.account"
-msgstr ""
+msgid "My Odoo.com account"
+msgstr "Account Odoo.com"
 
 #. module: web
 #. openerp-web
@@ -3427,6 +3441,13 @@ msgstr "Stampa"
 
 #. module: web
 #. openerp-web
+#: code:addons/web/static/src/legacy/xml/report.xml:0
+#, python-format
+msgid "Printing options"
+msgstr ""
+
+#. module: web
+#. openerp-web
 #: code:addons/web/static/src/legacy/js/fields/basic_fields.js:0
 #, python-format
 msgid "Priority"
@@ -3686,7 +3707,7 @@ msgstr "Struttura report"
 #. module: web
 #: model:ir.actions.report,name:web.action_report_layout_preview
 msgid "Report Layout Preview"
-msgstr ""
+msgstr "Anteprima del layout del rapporto"
 
 #. module: web
 #. openerp-web
@@ -4883,6 +4904,12 @@ msgstr "Sì"
 #, python-format
 msgid "Yesterday"
 msgstr "Ieri"
+
+#. module: web
+#: code:addons/web/controllers/main.py:0
+#, python-format
+msgid "You are not allowed to upload an attachment here."
+msgstr ""
 
 #. module: web
 #. openerp-web

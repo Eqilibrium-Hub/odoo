@@ -19,7 +19,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: it\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_channel_partner__completed_slides_count
@@ -1660,7 +1660,7 @@ msgid ""
 "answering                               questions. In this course, you'll "
 "study those topics with activities about mathematics, science and logic."
 msgstr ""
-"I compiti abituali di un informatico comprendono porre le domande giuste e "
+"I compiti abituali di un informatico sono porre le domande giuste e "
 "rispondere alle stesse.                               In questo corso "
 "verranno studiati argomenti che comprendono attività matematiche, "
 "scientifiche e logiche."
@@ -1672,7 +1672,7 @@ msgid ""
 "answering questions. In this course, you'll study those topics with "
 "activities about mathematics, science and logic."
 msgstr ""
-"I compiti abituali di un informatico comprendono porre le domande giuste e "
+"I compiti abituali di un informatico sono porre le domande giuste e "
 "rispondere alle stesse. In questo corso verranno studiati argomenti che "
 "comprendono attività matematiche, scientifiche e logiche."
 
@@ -1976,7 +1976,7 @@ msgstr "Numero corsi"
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.slide_channel_tag_group_view_form
 msgid "Course Group Name"
-msgstr ""
+msgstr "Nome gruppo corso"
 
 #. module: website_slides
 #: model:ir.actions.act_window,name:website_slides.slide_channel_tag_group_action
@@ -2387,7 +2387,7 @@ msgstr "Fatto !"
 #. module: website_slides
 #: model:ir.model.fields,field_description:website_slides.field_slide_question__done_count
 msgid "Done Count"
-msgstr ""
+msgstr "Conteggio finito"
 
 #. module: website_slides
 #: model_terms:ir.ui.view,arch_db:website_slides.embed_slide
@@ -4503,6 +4503,12 @@ msgid "Security Token"
 msgstr "Token di sicurezza"
 
 #. module: website_slides
+#: code:addons/website_slides/models/res_users.py:0
+#, python-format
+msgid "See our eLearning"
+msgstr "Vedi il nostro eLearning"
+
+#. module: website_slides
 #. openerp-web
 #: code:addons/website_slides/static/src/js/tours/slides_tour.js:0
 #, python-format
@@ -4882,7 +4888,7 @@ msgstr "Affermati e guadagna karma"
 #: model_terms:ir.ui.view,arch_db:website_slides.view_slide_tag_form
 #, python-format
 msgid "Tag"
-msgstr "Etichetta"
+msgstr "Tag"
 
 #. module: website_slides
 #. openerp-web

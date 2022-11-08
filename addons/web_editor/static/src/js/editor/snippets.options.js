@@ -25,6 +25,7 @@ const {
     applyModifications,
     removeOnImageChangeAttrs,
     isImageSupportedForProcessing,
+    isImageSupportedForStyle,
 } = require('web_editor.image_processing');
 
 var qweb = core.qweb;
@@ -81,7 +82,16 @@ function _buildElement(tagName, title, options) {
  */
 function _buildTitleElement(title) {
     const titleEl = document.createElement('we-title');
-    titleEl.textContent = title;
+    // As a stable fix, to not touch XML templates and break existing
+    // translations, the ⌙ character is automatically replaced by └ which makes
+    // more sense for the usecase and should work properly in all browsers. The
+    // ⌙ character is actually rendered mirrored on Windows 11 Chrome (and
+    // others) as the font used for those unicode characters is left to the
+    // browser. We could force a font of our own but it's probably not worth it.
+    // TODO a better solution with a SVG or CSS solution has to be done in
+    // master. That would unify the look of the symbol across all browsers and
+    // also prevent special characters to be placed in translations.
+    titleEl.textContent = title.replace(/⌙/g, '└');
     return titleEl;
 }
 /**
@@ -247,7 +257,6 @@ const UserValueWidget = Widget.extend({
         this.containerEl = document.createElement('div');
 
         if (this.imgEl) {
-            this.containerEl.appendChild(document.createTextNode('\u200B')); // Ensures proper vertical centering.
             this.containerEl.appendChild(this.imgEl);
         }
 
@@ -850,14 +859,7 @@ const BaseSelectionUserValueWidget = UserValueWidget.extend({
 
         this.menuEl = document.createElement('we-selection-items');
         if (this.options && this.options.childNodes) {
-            this.options.childNodes.forEach(node => {
-                if (node) {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        node.insertBefore(document.createTextNode('\u200B'), node.firstChild); // Ensures proper height.
-                    }
-                    this.menuEl.appendChild(node);
-                }
-            });
+            this.options.childNodes.forEach(node => node && this.menuEl.appendChild(node));
         }
         this.containerEl.appendChild(this.menuEl);
     },
@@ -946,7 +948,6 @@ const SelectUserValueWidget = BaseSelectionUserValueWidget.extend({
         }
 
         this.menuTogglerEl = document.createElement('we-toggler');
-        this.menuTogglerEl.appendChild(document.createTextNode('\u200B')); // Ensures proper height.
         this.iconEl = this.imgEl || null;
         const icon = this.el.dataset.icon;
         if (icon) {
@@ -1005,11 +1006,11 @@ const SelectUserValueWidget = BaseSelectionUserValueWidget.extend({
             this.menuTogglerItemEl = null;
         }
 
-        let textContent = '\u200B'; // Ensures proper height.
+        let textContent = '';
         const activeWidget = this._userValueWidgets.find(widget => !widget.isPreviewed() && widget.isActive());
         if (activeWidget) {
             const svgTag = activeWidget.el.querySelector('svg'); // useful to avoid searching text content in svg element
-            const value = (activeWidget.el.dataset.selectLabel || (!svgTag && activeWidget.el.textContent.replace('\u200B', '').trim()));
+            const value = (activeWidget.el.dataset.selectLabel || (!svgTag && activeWidget.el.textContent.trim()));
             const imgSrc = activeWidget.el.dataset.img;
             if (value) {
                 textContent = value;
@@ -1486,10 +1487,26 @@ const ColorpickerUserValueWidget = SelectUserValueWidget.extend({
         if (this._value) {
             if (ColorpickerWidget.isCSSColor(this._value)) {
                 this.colorPreviewEl.style.backgroundColor = this._value;
-            } else if (!weUtils.isColorGradient(this._value)) {
-                this.colorPreviewEl.classList.add(`bg-${this._value}`);
-            } else {
+            } else if (weUtils.isColorGradient(this._value)) {
                 this.colorPreviewEl.style.backgroundImage = this._value;
+            } else {
+                // Checking if the className actually exists seems overkill but
+                // it is actually needed to prevent a crash. As an example, if a
+                // colorpicker widget is linked to a SnippetOption instance's
+                // `selectStyle` method designed to handle the "border-color"
+                // property of an element, the value received can be split if
+                // the item uses different colors for its top/right/bottom/left
+                // borders. For instance, you could receive "red blue" if the
+                // item as red top and bottom borders and blue left and right
+                // borders, in which case you would reach this `else` and try to
+                // add the class "bg-red blue" which would crash because of the
+                // space inside). In that case, we simply do not show any color.
+                // We could choose to handle this split-value case specifically
+                // but it was decided that this is enough for the moment.
+                const className = `bg-${this._value}`;
+                if (classes.includes(className)) {
+                    this.colorPreviewEl.classList.add(className);
+                }
             }
         }
         // If the palette was already opened (e.g. modifying a gradient), the new DOM state must be
@@ -1948,12 +1965,21 @@ const ListUserValueWidget = UserValueWidget.extend({
         if (this.createWidget) {
             const selectedIds = currentValues.map(({ id }) => id)
                 .filter(id => typeof id === 'number');
-            const selectedIdsDomain = ['id', 'not in', selectedIds];
+            // Note: it's important to simplify the domain at its maximum as the
+            // rpc using it are cached. Similar domains should be written the
+            // same way for the cache to work.
+            const selectedIdsDomain = selectedIds.length ? ['id', 'not in', selectedIds] : null;
             const selectedIdsDomainIndex = this.createWidget.options.domain.findIndex(domain => domain[0] === 'id' && domain[1] === 'not in');
             if (selectedIdsDomainIndex > -1) {
-                this.createWidget.options.domain[selectedIdsDomainIndex] = selectedIdsDomain;
+                if (selectedIdsDomain) {
+                    this.createWidget.options.domain[selectedIdsDomainIndex] = selectedIdsDomain;
+                } else {
+                    this.createWidget.options.domain.splice(selectedIdsDomainIndex, 1);
+                }
             } else {
-                this.createWidget.options.domain = [...this.createWidget.options.domain, selectedIdsDomain];
+                if (selectedIdsDomain) {
+                    this.createWidget.options.domain = [...this.createWidget.options.domain, selectedIdsDomain];
+                }
             }
             this.createWidget.setValue('');
             this.createWidget.inputEl.value = '';
@@ -2403,6 +2429,7 @@ const SelectPagerUserValueWidget = SelectUserValueWidget.extend({
     },
 });
 
+const m2oRpcCache = {};
 const Many2oneUserValueWidget = SelectUserValueWidget.extend({
     className: (SelectUserValueWidget.prototype.className || '') + ' o_we_many2one',
     events: Object.assign({}, SelectUserValueWidget.prototype.events, {
@@ -2420,7 +2447,7 @@ const Many2oneUserValueWidget = SelectUserValueWidget.extend({
     init(parent, title, options, $target) {
         this.afterSearch = [];
         this.displayNameCache = {};
-        this._rpcCache = {};
+        this._rpcCache = m2oRpcCache;
         const {dataAttributes} = options;
         Object.assign(options, {
             limit: '5',
@@ -3133,6 +3160,13 @@ const SnippetOptionWidget = Widget.extend({
      * @param {boolean} previewMode - @see this.selectClass
      * @param {string} widgetValue
      * @param {Object} params
+     * @param {string} [params.forceStyle] if undefined, the method will not
+     *      set the inline style (and thus even remove it) if the item would
+     *      already have the given style without it (thanks to a CSS rule for
+     *      example). If defined (as a string), it acts as the "priority" param
+     *      of @see CSSStyleDeclaration.setProperty: it should be 'important' to
+     *      set the style as important or '' otherwise. Note that if forceStyle
+     *      is undefined, the style is always set as important when applied.
      * @returns {Promise|undefined}
      */
     selectStyle: async function (previewMode, widgetValue, params) {
@@ -3254,8 +3288,11 @@ const SnippetOptionWidget = Widget.extend({
         hasUserValue = applyCSS.call(this, cssProps[0], values.join(' '), styles) || hasUserValue;
 
         function applyCSS(cssProp, cssValue, styles) {
-            if (!weUtils.areCssValuesEqual(styles[cssProp], cssValue, cssProp, this.$target[0])) {
-                this.$target[0].style.setProperty(cssProp, cssValue, 'important');
+            const forceStyle = (typeof params.forceStyle !== 'undefined');
+            if (forceStyle
+                    || !weUtils.areCssValuesEqual(styles[cssProp], cssValue, cssProp, this.$target[0])) {
+                const priority = forceStyle ? params.forceStyle : 'important';
+                this.$target[0].style.setProperty(cssProp, cssValue, priority);
                 return true;
             }
             return false;
@@ -4132,6 +4169,7 @@ registry.sizing = SnippetOptionWidget.extend({
         var resizeValues = this._getSize();
         this.$handles.on('mousedown', function (ev) {
             ev.preventDefault();
+            self.options.wysiwyg.odooEditor.automaticStepUnactive('resizing');
 
             // First update size values as some element sizes may not have been
             // initialized on option start (hidden slides, etc)
@@ -4223,6 +4261,8 @@ registry.sizing = SnippetOptionWidget.extend({
                 setTimeout(function () {
                     self.options.wysiwyg.odooEditor.historyStep();
                 }, 0);
+
+                self.options.wysiwyg.odooEditor.automaticStepActive('resizing');
             };
             $body.on('mousemove', bodyMouseMove);
             $body.on('mouseup', bodyMouseUp);
@@ -4724,6 +4764,7 @@ registry.ReplaceMedia = SnippetOptionWidget.extend({
      */
     onFocus() {
         core.bus.on('activate_image_link_tool', this, this._activateLinkTool);
+        core.bus.on('deactivate_image_link_tool', this, this._deactivateLinkTool);
         // When we start editing an image, rerender the UI to ensure the
         // we-select that suggests the anchors is in a consistent state.
         this.rerender = true;
@@ -4733,6 +4774,7 @@ registry.ReplaceMedia = SnippetOptionWidget.extend({
      */
     onBlur() {
         core.bus.off('activate_image_link_tool', this, this._activateLinkTool);
+        core.bus.off('deactivate_image_link_tool', this, this._deactivateLinkTool);
     },
 
     //--------------------------------------------------------------------------
@@ -4790,6 +4832,7 @@ registry.ReplaceMedia = SnippetOptionWidget.extend({
         if (!url) {
             // As long as there is no URL, the image is not considered a link.
             linkEl.removeAttribute('href');
+            this.$target.trigger('href_changed');
             return;
         }
         if (!url.startsWith('/') && !url.startsWith('#')
@@ -4800,6 +4843,7 @@ registry.ReplaceMedia = SnippetOptionWidget.extend({
         }
         linkEl.setAttribute('href', url);
         this.rerender = true;
+        this.$target.trigger('href_changed');
     },
     /**
      * @override
@@ -4824,6 +4868,15 @@ registry.ReplaceMedia = SnippetOptionWidget.extend({
         if (this.$target[0].parentElement.tagName === 'A') {
             this._requestUserValueWidgets('media_url_opt')[0].focus();
         } else {
+            this._requestUserValueWidgets('media_link_opt')[0].enable();
+        }
+    },
+    /**
+     * @private
+     */
+    _deactivateLinkTool() {
+        const parentEl = this.$target[0].parentNode;
+        if (parentEl.tagName === 'A') {
             this._requestUserValueWidgets('media_link_opt')[0].enable();
         }
     },
@@ -4853,6 +4906,9 @@ registry.ReplaceMedia = SnippetOptionWidget.extend({
      */
     async _computeWidgetVisibility(widgetName, params) {
         if (widgetName === 'media_link_opt') {
+            if (this.$target[0].matches('img')) {
+                return isImageSupportedForStyle(this.$target[0]);
+            }
             return !this.$target[0].classList.contains('media_iframe_video');
         }
         return this._super(...arguments);
@@ -4902,6 +4958,7 @@ const ImageHandlerOption = SnippetOptionWidget.extend({
         await this._super(...arguments);
 
         if (this._filesize === undefined) {
+            this.$weight.addClass('d-none');
             await this._applyOptions(false);
         }
         if (this._filesize !== undefined) {
@@ -5073,6 +5130,7 @@ const ImageHandlerOption = SnippetOptionWidget.extend({
         }
         if (!this._isImageSupportedForProcessing(img)) {
             this.originalId = null;
+            this._filesize = undefined;
             return;
         }
         const dataURL = await applyModifications(img, {mimetype: this._getImageMimetype(img)});
@@ -5162,12 +5220,12 @@ const ImageHandlerOption = SnippetOptionWidget.extend({
     },
     /**
      * TODO: adapt in master (used to keep ImageTools related options available
-     * for all images).
+     * for all supported images).
      *
      * @returns {Boolean}
      */
     _isAllowedOnAllImages() {
-        return false;
+        return isImageSupportedForStyle(this._getImg());
     },
 });
 
@@ -5249,11 +5307,17 @@ registry.ImageTools = ImageHandlerOption.extend({
         this.trigger_up('disable_loading_effect');
 
         const document = this.$target[0].ownerDocument;
+        const playState = this.$target[0].style.animationPlayState;
+        const transition = this.$target[0].style.transition;
         this.$target.transfo({document});
         const mousedown = mousedownEvent => {
             if (!$(mousedownEvent.target).closest('.transfo-container').length) {
                 this.$target.transfo('destroy');
                 $(document).off('mousedown', mousedown);
+                // Restore animation css properties potentially affected by the
+                // jQuery transfo plugin.
+                this.$target[0].style.animationPlayState = playState;
+                this.$target[0].style.transition = transition;
             }
         };
         $(document).on('mousedown', mousedown);
@@ -5520,6 +5584,10 @@ registry.ImageTools = ImageHandlerOption.extend({
         if (params.optionsPossibleValues.resetCrop) {
             return this._isCropped();
         }
+        // Only the 'Crop' widget is visible when image is not supported for style options.
+        if (Object.keys(params.optionsPossibleValues).some(methodName => ['transform', 'selectStyle'].includes(methodName))) {
+            return isImageSupportedForStyle(this._getImg());
+        }
         return this._super();
     },
     /**
@@ -5642,12 +5710,6 @@ registry.ImageTools = ImageHandlerOption.extend({
             await this._loadShape(img.dataset.shape);
             await this._applyShapeAndColors(true, (img.dataset.shapeColors && img.dataset.shapeColors.split(';')));
         }
-    },
-    /**
-     * @override
-     */
-    _isAllowedOnAllImages() {
-        return true;
     },
 
     //--------------------------------------------------------------------------
@@ -6815,7 +6877,9 @@ registry.ColoredLevelBackground = registry.BackgroundToggler.extend({
      * @private
      */
     _markColorLevel: function () {
+        this.options.wysiwyg.odooEditor.observerUnactive('_markColorLevel');
         this.$target.addClass('o_colored_level');
+        this.options.wysiwyg.odooEditor.observerActive('_markColorLevel');
     },
 });
 

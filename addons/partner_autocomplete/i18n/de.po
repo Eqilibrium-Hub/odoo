@@ -24,7 +24,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:partner_autocomplete.field_res_partner__additional_info
 #: model:ir.model.fields,field_description:partner_autocomplete.field_res_users__additional_info
 msgid "Additional info"
-msgstr "zusätzliche Information"
+msgstr "Zusätzliche Informationen"
 
 #. module: partner_autocomplete
 #. openerp-web
@@ -43,6 +43,8 @@ msgstr "Unternehmen"
 #, python-format
 msgid "Company auto-completed by Odoo Partner Autocomplete Service"
 msgstr ""
+"Unternehmen automatisch vervollständigt durch Odoo Partner Auto-"
+"Vervollständigung."
 
 #. module: partner_autocomplete
 #: model:ir.model.fields,field_description:partner_autocomplete.field_res_company__partner_gid

@@ -4,23 +4,23 @@
 # 
 # Translators:
 # SebastianoPistore <SebastianoPistore.info@protonmail.ch>, 2021
-# Sergio Zanchetta <primes2h@gmail.com>, 2022
 # Martin Trigaux, 2022
 # Friederike Fasterling-Nesselbosch, 2022
+# Sergio Zanchetta <primes2h@gmail.com>, 2022
 # 
 msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-24 08:20+0000\n"
+"POT-Creation-Date: 2022-05-10 14:27+0000\n"
 "PO-Revision-Date: 2021-09-14 12:24+0000\n"
-"Last-Translator: Friederike Fasterling-Nesselbosch, 2022\n"
+"Last-Translator: Sergio Zanchetta <primes2h@gmail.com>, 2022\n"
 "Language-Team: Italian (https://www.transifex.com/odoo/teams/41243/it/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: \n"
 "Language: it\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer_onboarding_wizard___data_fetched
@@ -432,7 +432,7 @@ msgstr "Annullata"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__cancel_msg
 msgid "Canceled Message"
-msgstr "Messaggio cancellato"
+msgstr "Messaggio annullato"
 
 #. module: payment
 #. openerp-web
@@ -923,6 +923,8 @@ msgid ""
 "In test mode, a fake payment is processed through a test payment interface.\n"
 "This mode is advised when setting up the acquirer."
 msgstr ""
+"In modalità test, un falso pagamento viene elaborato attraverso un'interfaccia di pagamento di prova.\n"
+"Questa modalità è consigliata quando si imposta l'acquirer."
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__inline_form_view_id
@@ -972,7 +974,7 @@ msgstr "Conteggio Fatture"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__is_post_processed
 msgid "Is Post-processed"
-msgstr ""
+msgstr "È stato post-trattato"
 
 #. module: payment
 #. openerp-web
@@ -1109,7 +1111,7 @@ msgstr "Nome"
 #. module: payment
 #: model:ir.model.fields.selection,name:payment.selection__payment_acquirer__provider__none
 msgid "No Provider Set"
-msgstr ""
+msgstr "Nessun fornitore impostato"
 
 #. module: payment
 #: code:addons/payment/wizards/payment_acquirer_onboarding_wizard.py:0
@@ -1498,6 +1500,12 @@ msgid "Please set an amount smaller than %s."
 msgstr "Impostare un importo più piccolo di %s."
 
 #. module: payment
+#: code:addons/payment/controllers/portal.py:0
+#, python-format
+msgid "Please switch to company '%s' to make this payment."
+msgstr "Passa all'azienda '%s' per effettuare questo pagamento."
+
+#. module: payment
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_transfer
 msgid "Please use the following transfer details"
 msgstr "Usare le seguenti informazioni per il bonifico"
@@ -1543,7 +1551,7 @@ msgstr "Motivo: %s"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__redirect_form_view_id
 msgid "Redirect Form Template"
-msgstr ""
+msgstr "Reindirizzamento del template del modulo"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__reference
@@ -1685,7 +1693,7 @@ msgstr ""
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__show_credentials_page
 msgid "Show Credentials Page"
-msgstr ""
+msgstr "Mostra la pagina delle credenziali"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__show_done_msg
@@ -1875,7 +1883,7 @@ msgstr "Il giornale in cui sono registrate le transazioni di successo"
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_icon__acquirer_ids
 msgid "The list of acquirers supporting this payment icon"
-msgstr ""
+msgstr "L'elenco degli acquirenti che supportano questa icona di pagamento"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__auth_msg
@@ -1940,7 +1948,7 @@ msgstr "Il pagamento alla fonte dei relativi pagamenti di rimborso"
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_transaction__source_transaction_id
 msgid "The source transaction of related refund transactions"
-msgstr ""
+msgstr "La transazione di origine delle transazioni di rimborso collegate"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_acquirer__redirect_form_view_id
@@ -1956,6 +1964,8 @@ msgstr ""
 msgid ""
 "The template rendering the inline payment form when making a direct payment"
 msgstr ""
+"Il modello che rende il modulo di pagamento inline quando si effettua un "
+"pagamento diretto"
 
 #. module: payment
 #: code:addons/payment/models/payment_transaction.py:0
@@ -1994,7 +2004,7 @@ msgid ""
 "The transaction with reference %(ref)s for %(amount)s is canceled "
 "(%(acq_name)s)."
 msgstr ""
-"La transazione con riferimento %(ref)s per %(amount)s è cancellata "
+"La transazione con riferimento %(ref)s per %(amount)s è annullato "
 "(%(acq_name)s)."
 
 #. module: payment
@@ -2040,6 +2050,8 @@ msgstr ""
 msgid ""
 "This field holds the image used for this payment icon, limited to 64x64 px"
 msgstr ""
+"Questo campo contiene l'immagine utilizzata per questa icona di pagamento, "
+"limitata a 64x64 px"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_link_wizard_view_form
@@ -2256,6 +2268,12 @@ msgstr ""
 #, python-format
 msgid "You cannot delete a view that is used by a payment acquirer."
 msgstr "Non puoi eliminare una vista usata da un'acquirente di pagamento."
+
+#. module: payment
+#: code:addons/payment/controllers/portal.py:0
+#, python-format
+msgid "You do not have access to this payment token."
+msgstr "Non hai accesso a questo token di pagamento."
 
 #. module: payment
 #. openerp-web

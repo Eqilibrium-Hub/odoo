@@ -131,7 +131,7 @@ class WebsiteSlides(WebsiteProfile):
                     'id': answer.id,
                     'text_value': answer.text_value,
                     'is_correct': answer.is_correct if slide_completed or request.website.is_publisher() else None,
-                    'comment': answer.comment if request.website.is_publisher else None
+                    'comment': answer.comment if request.website.is_publisher() else None
                 } for answer in question.sudo().answer_ids],
             } for question in slide.question_ids]
         }
@@ -692,6 +692,9 @@ class WebsiteSlides(WebsiteProfile):
     def slide_view(self, slide, **kwargs):
         if not slide.channel_id.can_access_from_current_website() or not slide.active:
             raise werkzeug.exceptions.NotFound()
+        # redirection to channel's homepage for category slides
+        if slide.is_category:
+            return request.redirect(slide.channel_id.website_url)
         self._set_viewed_slide(slide)
 
         values = self._get_slide_detail(slide)

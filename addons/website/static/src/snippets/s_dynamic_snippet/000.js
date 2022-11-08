@@ -75,14 +75,14 @@ const DynamicSnippet = publicWidget.Widget.extend({
     //--------------------------------------------------------------------------
 
     /**
-     *
      * @private
      */
     _clearContent: function () {
-        const $dynamicSnippetTemplate = this.$el.find('.dynamic_snippet_template');
-        if ($dynamicSnippetTemplate) {
-            $dynamicSnippetTemplate.html('');
-        }
+        const $templateArea = this.$el.find('.dynamic_snippet_template');
+        this.trigger_up('widgets_stop_request', {
+            $target: $templateArea,
+        });
+        $templateArea.html('');
     },
     /**
      * Method to be overridden in child components if additional configuration elements
@@ -165,20 +165,36 @@ const DynamicSnippet = publicWidget.Widget.extend({
      */
     _render: function () {
         if (this.data.length > 0 || this.editableMode) {
-            this.$el.removeClass('d-none');
+            this.$el.removeClass('o_dynamic_empty');
             this._prepareContent();
         } else {
-            this.$el.addClass('d-none');
+            this.$el.addClass('o_dynamic_empty');
             this.renderedContent = '';
+        }
+        // TODO Remove in master: adapt already existing snippet from former version.
+        if (this.$el[0].classList.contains('d-none') && !this.$el[0].classList.contains('d-md-block')) {
+            // Remove the 'd-none' of the old template if it is not related to
+            // the visible on mobile option.
+            this.$el[0].classList.remove('d-none');
         }
         this._renderContent();
     },
     /**
-     *
      * @private
      */
     _renderContent: function () {
-        this.$el.find('.dynamic_snippet_template').html(this.renderedContent);
+        const $templateArea = this.$el.find('.dynamic_snippet_template');
+        this.trigger_up('widgets_stop_request', {
+            $target: $templateArea,
+        });
+        $templateArea.html(this.renderedContent);
+        // TODO this is probably not the only public widget which creates DOM
+        // which should be attached to another public widget. Maybe a generic
+        // method could be added to properly do this operation of DOM addition.
+        this.trigger_up('widgets_start_request', {
+            $target: $templateArea,
+            editableMode: this.editableMode,
+        });
     },
     /**
      *
@@ -198,7 +214,7 @@ const DynamicSnippet = publicWidget.Widget.extend({
      * @private
      */
     _toggleVisibility: function (visible) {
-        this.$el.toggleClass('d-none', !visible);
+        this.$el.toggleClass('o_dynamic_empty', !visible);
     },
 
     //------------------------------------- -------------------------------------

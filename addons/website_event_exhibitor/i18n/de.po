@@ -350,12 +350,12 @@ msgstr "Event-Sponsor"
 #: model:ir.model,name:website_event_exhibitor.model_event_sponsor_type
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_type_view_tree
 msgid "Event Sponsor Level"
-msgstr ""
+msgstr "Event-Sponsor-Stufe"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_type_view_form
 msgid "Event Sponsor Levels"
-msgstr ""
+msgstr "Event-Sponsor-Stufen"
 
 #. module: website_event_exhibitor
 #: model:ir.actions.act_window,name:website_event_exhibitor.event_sponsor_action
@@ -384,7 +384,7 @@ msgstr "Aussteller"
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_type_view_form
 msgid "Exhibitors Menu Item"
-msgstr ""
+msgstr "Aussteller Menüpunkt"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_event__exhibitor_menu_ids
@@ -395,7 +395,7 @@ msgstr "Aussteller-Menü"
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__message_follower_ids
 msgid "Followers"
-msgstr "Abonnenten"
+msgstr "Follower"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__message_partner_ids
@@ -450,7 +450,7 @@ msgstr "ID"
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__activity_exception_icon
 msgid "Icon"
-msgstr "Icon"
+msgstr "Symbol"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,help:website_event_exhibitor.field_event_sponsor__activity_exception_icon
@@ -637,7 +637,7 @@ msgstr "Nächster Aktivitätstyp"
 #. module: website_event_exhibitor
 #: model:ir.model.fields.selection,name:website_event_exhibitor.selection__event_sponsor_type__display_ribbon_style__no_ribbon
 msgid "No Ribbon"
-msgstr ""
+msgstr "Kein Band"
 
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.exhibitors_main
@@ -704,7 +704,7 @@ msgstr "Partner"
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__room_max_participant_reached
 msgid "Peak participants"
-msgstr ""
+msgstr "Standanmeldung fehlgeschlagen."
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__partner_phone
@@ -739,7 +739,7 @@ msgstr "Verantwortlicher Benutzer"
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor_type__display_ribbon_style
 msgid "Ribbon Style"
-msgstr ""
+msgstr "Band-Stil"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__room_is_full
@@ -766,7 +766,7 @@ msgstr "Reihenfolge"
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_event__exhibitor_menu
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_type__exhibitor_menu
 msgid "Showcase Exhibitors"
-msgstr ""
+msgstr "Aussteller präsentieren"
 
 #. module: website_event_exhibitor
 #: model:event.sponsor.type,name:website_event_exhibitor.event_sponsor_type2
@@ -836,7 +836,7 @@ msgstr "Sponsorenwebsite"
 #. module: website_event_exhibitor
 #: model_terms:ir.ui.view,arch_db:website_event_exhibitor.event_sponsor_view_kanban
 msgid "Sponsor image"
-msgstr ""
+msgstr "Sponsor Bild"
 
 #. module: website_event_exhibitor
 #: model:ir.model.fields,field_description:website_event_exhibitor.field_event_sponsor__sponsor_type_id
@@ -869,8 +869,8 @@ msgid ""
 msgstr ""
 "Status basierend auf Aktivitäten\n"
 "Überfällig: Fälligkeitsdatum bereits überschritten\n"
-"Heute: Aktivität besitzt heutiges Datum\n"
-"Geplant: anstehende Aktivitäten."
+"Heute: Aktivität ist für heute geplant\n"
+"Geplant: zukünftige Aktivitäten."
 
 #. module: website_event_exhibitor
 #: code:addons/website_event_exhibitor/controllers/website_event_main.py:0

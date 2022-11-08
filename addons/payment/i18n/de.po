@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 15.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-24 08:20+0000\n"
+"POT-Creation-Date: 2022-05-10 14:27+0000\n"
 "PO-Revision-Date: 2021-09-14 12:24+0000\n"
 "Last-Translator: Friederike Fasterling-Nesselbosch, 2022\n"
 "Language-Team: German (https://www.transifex.com/odoo/teams/41243/de/)\n"
@@ -78,7 +78,7 @@ msgstr "<span class=\"o_stat_text\">Gespeicherte Zahlungsmethoden</span>"
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_acquirer_onboarding_wizard_form
 msgid "<span><i class=\"fa fa-arrow-right\"/> Get my Stripe keys</span>"
-msgstr ""
+msgstr "<span><i class=\"fa fa-arrow-right\"/> Meine Stripe Keys erhalten</span>"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.payment_acquirer_onboarding_wizard_form
@@ -855,7 +855,7 @@ msgstr "Hat ausstehende Erstattung"
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_transaction__is_post_processed
 msgid "Has the payment been post-processed"
-msgstr ""
+msgstr "Wurde die Zahlung weiterverarbeitet?"
 
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__pre_msg
@@ -974,7 +974,7 @@ msgstr "Anzahl der Rechnungen"
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_transaction__is_post_processed
 msgid "Is Post-processed"
-msgstr ""
+msgstr "Wurde weiterverarbeitet"
 
 #. module: payment
 #. openerp-web
@@ -1501,6 +1501,12 @@ msgid "Please set an amount smaller than %s."
 msgstr "Setzen Sie einen kleineren Betrag als %s ein."
 
 #. module: payment
+#: code:addons/payment/controllers/portal.py:0
+#, python-format
+msgid "Please switch to company '%s' to make this payment."
+msgstr "Bitte wechseln Sie zu Unternehmen '%s', um diese Zahlung vorzunehmen."
+
+#. module: payment
 #: model_terms:payment.acquirer,pending_msg:payment.payment_acquirer_transfer
 msgid "Please use the following transfer details"
 msgstr "Bitte verwenden Sie folgende Transferinformationen."
@@ -1810,7 +1816,7 @@ msgstr "Das Zugangs-Token ist ungültig."
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_token__acquirer_ref
 msgid "The acquirer reference of the token of the transaction"
-msgstr ""
+msgstr "Die Referenz des Acquirers für das Token der Transaktion"
 
 #. module: payment
 #: model:ir.model.fields,help:payment.field_payment_transaction__acquirer_reference
@@ -1965,6 +1971,8 @@ msgstr ""
 msgid ""
 "The template rendering the inline payment form when making a direct payment"
 msgstr ""
+"Die Vorlage, die das Inline-Zahlungsformular bei einer Direktzahlung "
+"wiedergibt"
 
 #. module: payment
 #: code:addons/payment/models/payment_transaction.py:0
@@ -2087,7 +2095,7 @@ msgstr "Diese Transaktion wurde abgebrochen."
 #. module: payment
 #: model:ir.model.fields,field_description:payment.field_payment_acquirer__support_tokenization
 msgid "Tokenization Supported"
-msgstr ""
+msgstr "Tokenisierung wird unterstützt"
 
 #. module: payment
 #: code:addons/payment/models/payment_transaction.py:0
@@ -2272,6 +2280,12 @@ msgstr ""
 "nicht löschen."
 
 #. module: payment
+#: code:addons/payment/controllers/portal.py:0
+#, python-format
+msgid "You do not have access to this payment token."
+msgstr "Sie haben keinen Zugang zu diesem Zahlungstoken."
+
+#. module: payment
 #. openerp-web
 #: code:addons/payment/static/src/xml/payment_post_processing.xml:0
 #, python-format
@@ -2420,7 +2434,7 @@ msgstr "PLZ"
 #: model:ir.cron,cron_name:payment.cron_post_process_payment_tx
 #: model:ir.cron,name:payment.cron_post_process_payment_tx
 msgid "payment: post-process transactions"
-msgstr ""
+msgstr "Zahlung: Nachbearbeitung von Transaktionen"
 
 #. module: payment
 #: model_terms:ir.ui.view,arch_db:payment.icon_list
