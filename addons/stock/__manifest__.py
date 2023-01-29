@@ -6,7 +6,7 @@
     'version': '1.1',
     'summary': 'Manage your stock and logistics activities',
     'description': "",
-    'website': 'https://www.odoo.com/app/inventory',
+    'website': 'https://www.eqilibriumsolutions.com',
     'depends': ['product', 'barcodes', 'digest'],
     'category': 'Inventory/Inventory',
     'sequence': 25,

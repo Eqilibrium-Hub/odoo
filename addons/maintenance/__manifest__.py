@@ -9,7 +9,7 @@
         Track equipments and maintenance requests""",
     'depends': ['mail'],
     'summary': 'Track equipment and manage maintenance requests',
-    'website': 'https://www.odoo.com/app/maintenance',
+    'website': 'https://www.eqilibriumsolutions.com',
     'data': [
         'security/maintenance.xml',
         'security/ir.model.access.csv',

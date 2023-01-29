@@ -17,9 +17,9 @@ Each employee can encode and track their time spent on the different projects.
 Lots of reporting on time and employee tracking are provided.
 
 It is completely integrated with the cost accounting module. It allows you to set
-up a management by affair.
+up a management by global relation.
     """,
-    'website': 'https://www.odoo.com/app/timesheet',
+    'website': 'https://www.eqilibriumsolutions.com',
     'depends': ['hr', 'analytic', 'project', 'uom'],
     'data': [
         'security/hr_timesheet_security.xml',

@@ -7,7 +7,7 @@
     'description': "",
     'version': '2.5',
     'sequence': 60,
-    'website': 'https://www.odoo.com/app/email-marketing',
+    'website': 'https://www.eqilibriumsolutions.com',
     'category': 'Marketing/Email Marketing',
     'depends': [
         'contacts',

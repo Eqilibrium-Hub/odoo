@@ -5,7 +5,7 @@
     'name': 'Outlook Calendar',
     'version': '1.0',
     'category': 'Productivity',
-    'description': "",
+    'description': "Sync CloudBI ERP with Outlook Calendar",
     'depends': ['microsoft_account', 'calendar'],
     'data': [
         'data/microsoft_calendar_data.xml',
