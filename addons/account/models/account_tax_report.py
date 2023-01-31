@@ -31,12 +31,11 @@ class AccountTaxReport(models.Model):
                         new_tags = tags_cache[cache_key]
 
                         if new_tags:
-                            tags_to_unlink = line.tag_ids.filtered(lambda x: record == x.mapped('tax_report_line_ids.report_id'))
-                            # == instead of in, as we only want tags_to_unlink to contain the tags that are not linked to any other report than the one we're considering
+                            line._remove_tags_used_only_by_self()
                             line.write({'tag_ids': [(6, 0, new_tags.ids)]})
-                            self.env['account.tax.report.line']._delete_tags_from_taxes(tags_to_unlink.ids)
 
                         elif line.mapped('tag_ids.tax_report_line_ids.report_id').filtered(lambda x: x not in self):
+                            line._remove_tags_used_only_by_self()
                             line.write({'tag_ids': [(5, 0, 0)] + line._get_tags_create_vals(line.tag_name, vals['country_id'])})
                             tags_cache[cache_key] = line.tag_ids
 
@@ -54,11 +53,7 @@ class AccountTaxReport(models.Model):
         copied_report = super(AccountTaxReport, self).copy(default=copy_default) #This copies the report without its lines
 
         lines_map = {} # maps original lines to their copies (using ids)
-        lines_to_treat = list(self.line_ids.filtered(lambda x: not x.parent_id))
-        while lines_to_treat:
-            line = lines_to_treat.pop()
-            lines_to_treat += list(line.children_line_ids)
-
+        for line in self.get_lines_in_hierarchy():
             copy = line.copy({'parent_id': lines_map.get(line.parent_id.id, None), 'report_id': copied_report.id})
             lines_map[line.id] = copy.id
 
@@ -69,10 +64,10 @@ class AccountTaxReport(models.Model):
         ar all directly followed by their children.
         """
         self.ensure_one()
-        lines_to_treat = list(self.line_ids.filtered(lambda x: not x.parent_id).sorted(lambda x: x.sequence)) # Used as a stack, whose index 0 is the top
+        lines_to_treat = list(self.line_ids.filtered(lambda x: not x.parent_id)) # Used as a stack, whose index 0 is the top
         while lines_to_treat:
             to_yield = lines_to_treat[0]
-            lines_to_treat = list(to_yield.children_line_ids.sorted(lambda x: x.sequence)) + lines_to_treat[1:]
+            lines_to_treat = list(to_yield.children_line_ids) + lines_to_treat[1:]
             yield to_yield
 
     def get_checks_to_perform(self, d):
@@ -94,7 +89,7 @@ class AccountTaxReport(models.Model):
 class AccountTaxReportLine(models.Model):
     _name = "account.tax.report.line"
     _description = 'Account Tax Report Line'
-    _order = 'sequence'
+    _order = 'sequence, id'
     _parent_store = True
 
     name = fields.Char(string="Name", required=True, help="Complete name for this report line, to be used in report.")
@@ -150,20 +145,23 @@ class AccountTaxReportLine(models.Model):
         return [(0, 0, minus_tag_vals), (0, 0, plus_tag_vals)]
 
     def write(self, vals):
-        tag_name_postponed = None
-
         # If tag_name was set, but not tag_ids, we postpone the write of
         # tag_name, and perform it only after having generated/retrieved the tags.
         # Otherwise, tag_name and tags' name would not match, breaking
         # _validate_tags constaint.
-        postpone_tag_name = 'tag_name' in vals and not 'tag_ids' in vals
+        postponed_vals = {}
 
-        if postpone_tag_name:
-            tag_name_postponed = vals.pop('tag_name')
+        if 'tag_name' in vals and 'tag_ids' not in vals:
+            postponed_vals = {'tag_name': vals.pop('tag_name')}
+            tag_name_postponed = postponed_vals['tag_name']
+            # if tag_name is posponed then we also postpone formula to avoid
+            # breaking _validate_formula constraint
+            if 'formula' in vals:
+                postponed_vals['formula'] = vals.pop('formula')
 
         rslt = super(AccountTaxReportLine, self).write(vals)
 
-        if postpone_tag_name:
+        if postponed_vals:
             # If tag_name modification has been postponed,
             # we need to search for existing tags corresponding to the new tag name
             # (or create them if they don't exist yet) and assign them to the records
@@ -184,7 +182,7 @@ class AccountTaxReportLine(models.Model):
                         minus_child_tags.write({'name': '-' + tag_name_postponed})
                         plus_child_tags = tags_to_update.filtered(lambda x: not x.tax_negate)
                         plus_child_tags.write({'name': '+' + tag_name_postponed})
-                        super(AccountTaxReportLine, to_update).write({'tag_name': tag_name_postponed})
+                        super(AccountTaxReportLine, to_update).write(postponed_vals)
 
                     else:
                         existing_tags = self.env['account.account.tag']._get_tax_tags(tag_name_postponed, country_id)
@@ -196,15 +194,15 @@ class AccountTaxReportLine(models.Model):
                             # linking it to the first report line of the record set
                             first_record = records_to_link[0]
                             tags_to_remove += first_record.tag_ids
-                            first_record.write({'tag_name': tag_name_postponed, 'tag_ids': [(5, 0, 0)] + self._get_tags_create_vals(tag_name_postponed, country_id)})
+                            first_record.write({**postponed_vals, 'tag_ids': [(5, 0, 0)] + self._get_tags_create_vals(tag_name_postponed, country_id)})
                             existing_tags = first_record.tag_ids
                             records_to_link -= first_record
 
                         # All the lines sharing their tags must always be synchronized,
                         tags_to_remove += records_to_link.mapped('tag_ids')
                         records_to_link = tags_to_remove.mapped('tax_report_line_ids')
-                        self._delete_tags_from_taxes(tags_to_remove.ids)
-                        records_to_link.write({'tag_name': tag_name_postponed, 'tag_ids': [(2, tag.id) for tag in tags_to_remove] + [(6, 0, existing_tags.ids)]})
+                        tags_to_remove.mapped('tax_report_line_ids')._remove_tags_used_only_by_self()
+                        records_to_link.write({**postponed_vals, 'tag_ids': [(2, tag.id) for tag in tags_to_remove] + [(6, 0, existing_tags.ids)]})
 
                 else:
                     # tag_name was set empty, so we remove the tags on current lines
@@ -215,22 +213,32 @@ class AccountTaxReportLine(models.Model):
                     if not other_lines_same_tag:
                         self._delete_tags_from_taxes(line_tags.ids)
                     orm_cmd_code = other_lines_same_tag and 3 or 2
-                    records.write({'tag_name': None, 'tag_ids': [(orm_cmd_code, tag.id) for tag in line_tags]})
+                    records.write({**postponed_vals, 'tag_ids': [(orm_cmd_code, tag.id) for tag in line_tags]})
 
         return rslt
 
     def unlink(self):
-        self._delete_tags_from_taxes(self.mapped('tag_ids.id'))
+        self._remove_tags_used_only_by_self()
         children = self.mapped('children_line_ids')
         if children:
             children.unlink()
         return super(AccountTaxReportLine, self).unlink()
 
+    def _remove_tags_used_only_by_self(self):
+        """ Deletes and removes from taxes and move lines all the
+        tags from the provided tax report lines that are not linked
+        to any other tax report lines.
+        """
+        all_tags = self.mapped('tag_ids')
+        tags_to_unlink = all_tags.filtered(lambda x: not (x.tax_report_line_ids - self))
+        self.write({'tag_ids': [(3, tag.id, 0) for tag in tags_to_unlink]})
+        self._delete_tags_from_taxes(tags_to_unlink.ids)
+
     @api.model
     def _delete_tags_from_taxes(self, tag_ids_to_delete):
         """ Based on a list of tag ids, removes them first from the
         repartition lines they are linked to, then deletes them
-        from the account move lines.
+        from the account move lines, and finally unlink them.
         """
         if not tag_ids_to_delete:
             # Nothing to do, then!
@@ -246,6 +254,8 @@ class AccountTaxReportLine(models.Model):
 
         self.env['account.move.line'].invalidate_cache(fnames=['tax_tag_ids'])
         self.env['account.tax.repartition.line'].invalidate_cache(fnames=['tag_ids'])
+
+        self.env['account.account.tag'].browse(tag_ids_to_delete).unlink()
 
     @api.constrains('formula', 'tag_name')
     def _validate_formula(self):

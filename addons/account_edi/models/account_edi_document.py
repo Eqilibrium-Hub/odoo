@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.addons.account_edi_extended.models.account_edi_document import DEFAULT_BLOCKING_LEVEL
+from odoo.exceptions import UserError
+
 from psycopg2 import OperationalError
+import base64
 import logging
 
 _logger = logging.getLogger(__name__)
@@ -23,6 +26,7 @@ class AccountEdiDocument(models.Model):
     # == Not stored fields ==
     name = fields.Char(related='attachment_id.name')
     edi_format_name = fields.Char(string='Format Name', related='edi_format_id.name')
+    edi_content = fields.Binary(compute='_compute_edi_content', compute_sudo=True)
 
     _sql_constraints = [
         (
@@ -31,6 +35,28 @@ class AccountEdiDocument(models.Model):
             'Only one edi document by move by format',
         ),
     ]
+
+    @api.depends('move_id', 'error', 'state')
+    def _compute_edi_content(self):
+        for doc in self:
+            res = b''
+            if doc.state in ('to_send', 'to_cancel'):
+                move = doc.move_id
+                config_errors = doc.edi_format_id._check_move_configuration(move)
+                if config_errors:
+                    res = base64.b64encode('\n'.join(config_errors).encode('UTF-8'))
+                elif move.is_invoice(include_receipts=True) and doc.edi_format_id._is_required_for_invoice(move):
+                    res = base64.b64encode(doc.edi_format_id._get_invoice_edi_content(doc.move_id))
+                elif move.payment_id and doc.edi_format_id._is_required_for_payment(move):
+                    res = base64.b64encode(doc.edi_format_id._get_payment_edi_content(doc.move_id))
+            doc.edi_content = res
+
+    def action_export_xml(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_url',
+            'url':  '/web/content/account.edi.document/%s/edi_content' % self.id
+        }
 
     def write(self, vals):
         ''' If account_edi_extended is not installed, a default behaviour is used instead.
@@ -230,28 +256,26 @@ class AccountEdiDocument(models.Model):
         jobs = self.filtered(lambda d: d.edi_format_id._needs_web_services())._prepare_jobs()
         jobs = jobs[0:job_count or len(jobs)]
         for documents, doc_type in jobs:
-            move_to_cancel = documents.filtered(lambda doc: doc.attachment_id \
-                                                    and doc.state == 'to_cancel' \
-                                                    and doc.move_id.is_invoice(include_receipts=True) \
-                                                    and doc.edi_format_id._is_required_for_invoice(doc.move_id)).move_id
+            move_to_lock = documents.move_id
             attachments_potential_unlink = documents.attachment_id.filtered(lambda a: not a.res_model and not a.res_id)
             try:
                 with self.env.cr.savepoint():
                     self._cr.execute('SELECT * FROM account_edi_document WHERE id IN %s FOR UPDATE NOWAIT', [tuple(documents.ids)])
-                    # Locks the move that will be cancelled.
-                    if move_to_cancel:
-                        self._cr.execute('SELECT * FROM account_move WHERE id IN %s FOR UPDATE NOWAIT', [tuple(move_to_cancel.ids)])
+                    self._cr.execute('SELECT * FROM account_move WHERE id IN %s FOR UPDATE NOWAIT', [tuple(move_to_lock.ids)])
 
                     # Locks the attachments that might be unlinked
                     if attachments_potential_unlink:
                         self._cr.execute('SELECT * FROM ir_attachment WHERE id IN %s FOR UPDATE NOWAIT', [tuple(attachments_potential_unlink.ids)])
 
-                    self._process_job(documents, doc_type)
             except OperationalError as e:
                 if e.pgcode == '55P03':
                     _logger.debug('Another transaction already locked documents rows. Cannot process documents.')
+                    if not with_commit:
+                        raise UserError(_('This document is being sent by another process already. '))
+                    continue
                 else:
                     raise e
-            else:
-                if with_commit and len(jobs) > 1:
-                    self.env.cr.commit()
+
+            self._process_job(documents, doc_type)
+            if with_commit and len(jobs) > 1:
+                self.env.cr.commit()

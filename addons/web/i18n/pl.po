@@ -21,19 +21,23 @@
 # Grzegorz Krukar <grzegorzgk1@gmail.com>, 2020
 # Martin Trigaux, 2020
 # Grażyna Grzelak <grazyna.grzelak@openglobe.pl>, 2020
-# Tadeusz Karpiński <tadeuszkarpinski@gmail.com>, 2020
 # Mariusz, 2020
 # Zdzisław Krajewski <zdzichucb@gmail.com>, 2020
 # Piotr Szlązak <szlazakpiotr@gmail.com>, 2020
 # Marcin Młynarczyk <mlynarczyk@gmail.com>, 2020
 # Paweł Michoń <michon.pawel@wp.pl>, 2020
-# Karol Rybak <karolrybak85@gmail.com>, 2020
 # Piotr Cierkosz <piotr.w.cierkosz@gmail.com>, 2020
 # Paweł Wodyński <pw@myodoo.pl>, 2020
 # Maja Stawicka <mjstwck@wp.pl>, 2020
-# Maksym <ms@myodoo.pl>, 2020
 # Tomasz Leppich <t.leppich@gmail.com>, 2021
+# Tadeusz Karpiński <tadeuszkarpinski@gmail.com>, 2021
 # Piotr Strębski <strebski@gmail.com>, 2021
+# Karol Rybak <karolrybak85@gmail.com>, 2021
+# DanielDemedziuk <daniel.demedziuk@gmail.com>, 2021
+# Rafał Kozak <rafal.kozak@openglobe.pl>, 2021
+# Wojciech Warczakowski <w.warczakowski@gmail.com>, 2022
+# Maksym <ms@myodoo.pl>, 2022
+# Jacek Michalski <michalski.jck@gmail.com>, 2022
 # 
 msgid ""
 msgstr ""
@@ -41,7 +45,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-02-25 10:30+0000\n"
 "PO-Revision-Date: 2020-09-07 08:19+0000\n"
-"Last-Translator: Piotr Strębski <strebski@gmail.com>, 2021\n"
+"Last-Translator: Jacek Michalski <michalski.jck@gmail.com>, 2022\n"
 "Language-Team: Polish (https://www.transifex.com/odoo/teams/41243/pl/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -117,7 +121,7 @@ msgstr ""
 #: code:addons/web/static/src/js/fields/basic_fields.js:0
 #, python-format
 msgid "%s days ago"
-msgstr ""
+msgstr "%s dni temu"
 
 #. module: web
 #. openerp-web
@@ -194,7 +198,7 @@ msgstr "(policz)"
 #: code:addons/web/static/src/js/control_panel/search_bar.js:0
 #, python-format
 msgid "(no result)"
-msgstr ""
+msgstr "(brak wyników)"
 
 #. module: web
 #. openerp-web
@@ -327,7 +331,7 @@ msgstr ""
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.report_invoice_wizard_preview
 msgid "<span>Amount</span>"
-msgstr ""
+msgstr "<span>Kwota</span>"
 
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.report_invoice_wizard_preview
@@ -719,6 +723,7 @@ msgstr ""
 
 #. module: web
 #. openerp-web
+#: code:addons/web/static/src/js/fields/basic_fields.js:0
 #: code:addons/web/static/src/xml/base.xml:0
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
@@ -983,6 +988,7 @@ msgstr "Widok kalendzara nie ma zdefiniowanego atrybutu 'date_start'."
 #. openerp-web
 #: code:addons/web/static/src/js/core/dialog.js:0
 #: code:addons/web/static/src/js/core/dialog.js:0
+#: code:addons/web/static/src/js/fields/basic_fields.js:0
 #: code:addons/web/static/src/js/fields/relational_fields.js:0
 #: code:addons/web/static/src/js/fields/upgrade_fields.js:0
 #: code:addons/web/static/src/js/services/crash_manager.js:0
@@ -1065,7 +1071,7 @@ msgstr ""
 #: code:addons/web/static/src/js/widgets/colorpicker.js:0
 #, python-format
 msgid "Choose"
-msgstr ""
+msgstr "Wybierz"
 
 #. module: web
 #. openerp-web
@@ -1207,7 +1213,7 @@ msgstr "Potwierdzenie"
 #: code:addons/web/static/src/js/chrome/abstract_web_client.js:0
 #, python-format
 msgid "Connection lost. Trying to reconnect..."
-msgstr ""
+msgstr "Utracono połączenie. Próbuję połączyć się ponownie..."
 
 #. module: web
 #. openerp-web
@@ -1398,12 +1404,12 @@ msgstr "Utwórz: %s"
 #. module: web
 #: model:ir.model.fields,field_description:web.field_base_document_layout__create_uid
 msgid "Created by"
-msgstr "Utworzona przez"
+msgstr "Utworzył(a)"
 
 #. module: web
 #: model:ir.model.fields,field_description:web.field_base_document_layout__create_date
 msgid "Created on"
-msgstr "Utworzono"
+msgstr "Data utworzenia"
 
 #. module: web
 #. openerp-web
@@ -1488,7 +1494,7 @@ msgstr ""
 #: code:addons/web/static/src/js/fields/basic_fields.js:0
 #, python-format
 msgid "Decimal"
-msgstr ""
+msgstr "Dziesiętny"
 
 #. module: web
 #. openerp-web
@@ -1607,7 +1613,7 @@ msgstr "Na pewno chcesz usunąć ten filtr z ulubionych ?"
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "Do you want to create"
-msgstr ""
+msgstr "Czy chcesz utworzyć"
 
 #. module: web
 #: model:ir.model.fields,field_description:web.field_base_document_layout__external_report_layout_id
@@ -1828,7 +1834,7 @@ msgstr "Eksport"
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "Export All"
-msgstr ""
+msgstr "Eksportuj wszystko"
 
 #. module: web
 #. openerp-web
@@ -2114,7 +2120,7 @@ msgstr "Jestem pewien."
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "I want to update data (import-compatible export)"
-msgstr ""
+msgstr "Chcę zaktualizować dane (eksport zgodny z importem)"
 
 #. module: web
 #: model:ir.model.fields,field_description:web.field_base_document_layout__id
@@ -2147,7 +2153,7 @@ msgstr "Obraz"
 #: code:addons/web/static/src/js/fields/basic_fields.js:0
 #, python-format
 msgid "In %s days"
-msgstr ""
+msgstr "W %s dni"
 
 #. module: web
 #. openerp-web
@@ -2204,7 +2210,7 @@ msgstr ""
 #: code:addons/web/static/src/js/widgets/attach_document.js:0
 #, python-format
 msgid "Invalid fields:"
-msgstr ""
+msgstr "Nieprawidłowe pola:"
 
 #. module: web
 #: code:addons/web/controllers/main.py:0
@@ -2940,6 +2946,13 @@ msgstr "Tylko ty"
 #. openerp-web
 #: code:addons/web/static/src/xml/debug.xml:0
 #, python-format
+msgid "Open Developer Tools"
+msgstr "Otwórz narzędzia deweloperskie"
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/xml/debug.xml:0
+#, python-format
 msgid "Open Developer Tools#{widget.debug_mode_help}"
 msgstr ""
 
@@ -2988,6 +3001,13 @@ msgstr "Otwórz w widoku listy"
 #, python-format
 msgid "Open: "
 msgstr "Otwórz: "
+
+#. module: web
+#. openerp-web
+#: code:addons/web/static/src/js/views/list/list_renderer.js:0
+#, python-format
+msgid "Optional columns"
+msgstr ""
 
 #. module: web
 #. openerp-web
@@ -3174,14 +3194,14 @@ msgstr "Zaktualizuj tłumaczenia:"
 #, python-format
 msgid ""
 "Please use the copy button to report the error to your support service."
-msgstr "Użyj przycisku kopiuj, aby zgłosić błąd do usługi pomocy technicznej."
+msgstr "Użyj przycisku kopiuj, aby zgłosić błąd do pomocy technicznej."
 
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.report_invoice_wizard_preview
 msgid ""
 "Please use the following communication for your payment : <b><span>\n"
 "                           INV/2020/07/0003</span></b>"
-msgstr ""
+msgstr "W treści przelewu prosimy podać :"
 
 #. module: web
 #: model_terms:ir.ui.view,arch_db:web.brand_promotion_message
@@ -3345,7 +3365,7 @@ msgstr "Szybkie dodawanie"
 #: code:addons/web/static/src/js/fields/relational_fields.js:0
 #, python-format
 msgid "Quick search: %s"
-msgstr ""
+msgstr "Szybkie wyszukiwanie: %s"
 
 #. module: web
 #: model:ir.model,name:web.model_ir_qweb_field_image
@@ -3440,7 +3460,7 @@ msgstr "Usuń zdjęcie główne"
 #: code:addons/web/static/src/js/widgets/data_export.js:0
 #, python-format
 msgid "Remove field"
-msgstr ""
+msgstr "Usuń pole"
 
 #. module: web
 #. openerp-web
@@ -3570,7 +3590,7 @@ msgstr "Zapisz rekord"
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "Save as :"
-msgstr ""
+msgstr "Zapisz jako:"
 
 #. module: web
 #. openerp-web
@@ -3688,14 +3708,14 @@ msgstr "Wybierz widok"
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "Select all"
-msgstr ""
+msgstr "Wybierz wszystkie"
 
 #. module: web
 #. openerp-web
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "Select field"
-msgstr ""
+msgstr "Wybierz pole"
 
 #. module: web
 #. openerp-web
@@ -4078,7 +4098,7 @@ msgstr "Ta domena nie jest obsługiwana."
 #: code:addons/web/static/src/xml/name_and_signature.xml:0
 #, python-format
 msgid "This file is invalid. Please select an image."
-msgstr ""
+msgstr "Ten plik jest nieprawidłowy. Proszę wybrać obraz."
 
 #. module: web
 #. openerp-web
@@ -4434,7 +4454,7 @@ msgstr "Użytkownicy"
 #: code:addons/web/static/src/js/services/crash_manager.js:0
 #, python-format
 msgid "Validation Error"
-msgstr "Błąd zatwierdzania"
+msgstr "Błąd walidacji"
 
 #. module: web
 #. openerp-web
@@ -4462,7 +4482,7 @@ msgstr "Widok %s"
 #: code:addons/web/static/src/xml/debug.xml:0
 #, python-format
 msgid "View Access Rights"
-msgstr ""
+msgstr "Pokaż prawa dostępu"
 
 #. module: web
 #. openerp-web
@@ -4484,7 +4504,7 @@ msgstr "Pokaż Metadane"
 #: code:addons/web/static/src/xml/debug.xml:0
 #, python-format
 msgid "View Record Rules"
-msgstr ""
+msgstr "Pokaż zasady rekordu"
 
 #. module: web
 #: model:ir.model.fields,field_description:web.field_ir_actions_act_window_view__view_mode
@@ -4502,6 +4522,7 @@ msgstr ""
 #. openerp-web
 #: code:addons/web/static/src/js/chrome/action_manager_report.js:0
 #: code:addons/web/static/src/js/services/crash_manager.js:0
+#: code:addons/web/static/src/js/control_panel/favorite_menu.js:0
 #: code:addons/web/static/src/js/views/basic/basic_controller.js:0
 #: code:addons/web/static/src/js/views/basic/basic_controller.js:0
 #: code:addons/web/static/src/js/views/list/list_controller.js:0
@@ -4529,7 +4550,7 @@ msgstr "Testy internetowe"
 #. module: web
 #: model:ir.model.fields,field_description:web.field_base_document_layout__website
 msgid "Website Link"
-msgstr "link strony"
+msgstr "Link do strony WWW"
 
 #. module: web
 #. openerp-web
@@ -4614,6 +4635,12 @@ msgstr "Tak"
 #, python-format
 msgid "Yesterday"
 msgstr "Wczoraj"
+
+#. module: web
+#: code:addons/web/controllers/main.py:0
+#, python-format
+msgid "You are not allowed to upload an attachment here."
+msgstr ""
 
 #. module: web
 #. openerp-web
@@ -4763,7 +4790,7 @@ msgstr ""
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "as a new"
-msgstr ""
+msgstr "jako nowy rekord"
 
 #. module: web
 #. openerp-web
@@ -4816,7 +4843,7 @@ msgstr ""
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "for:"
-msgstr ""
+msgstr "dla:"
 
 #. module: web
 #. openerp-web
@@ -5081,7 +5108,7 @@ msgstr "pozostało)"
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "search"
-msgstr ""
+msgstr "szukaj"
 
 #. module: web
 #. openerp-web
@@ -5089,14 +5116,14 @@ msgstr ""
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "selected"
-msgstr "zaznaczono"
+msgstr "wybrane"
 
 #. module: web
 #. openerp-web
 #: code:addons/web/static/src/xml/base.xml:0
 #, python-format
 msgid "selected records,"
-msgstr ""
+msgstr "wybrane rekordy,"
 
 #. module: web
 #. openerp-web

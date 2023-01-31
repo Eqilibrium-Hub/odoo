@@ -60,6 +60,7 @@ _ref_vat = {
     'nl': 'NL123456782B90',
     'no': 'NO123456785',
     'pe': '10XXXXXXXXY or 20XXXXXXXXY or 15XXXXXXXXY or 16XXXXXXXXY or 17XXXXXXXXY',
+    'ph': '123-456-789-01234',
     'pl': 'PL1234567883',
     'pt': 'PT123456789',
     'ro': 'RO1234567897',
@@ -69,7 +70,12 @@ _ref_vat = {
     'si': 'SI12345679',
     'sk': 'SK2022749619',
     'sm': 'SM24165',
-    'tr': 'TR1234567890 (VERGINO) or TR17291716060 (TCKIMLIKNO)'  # Levent Karakas @ Eska Yazilim A.S.
+    'tr': 'TR1234567890 (VERGINO) or TR17291716060 (TCKIMLIKNO)',  # Levent Karakas @ Eska Yazilim A.S.
+    'xi': 'XI123456782',
+}
+
+_region_specific_vat_codes = {
+    'xi',
 }
 
 
@@ -140,16 +146,21 @@ class ResPartner(models.Model):
 
     @api.constrains('vat', 'country_id')
     def check_vat(self):
+        # The context key 'no_vat_validation' allows you to store/set a VAT number without doing validations.
+        # This is for API pushes from external platforms where you have no control over VAT numbers.
+        if self.env.context.get('no_vat_validation'):
+            return
+        partners_with_vat = self.filtered('vat')
+        if not partners_with_vat:
+            return
         if self.env.context.get('company_id'):
             company = self.env['res.company'].browse(self.env.context['company_id'])
         else:
             company = self.env.company
         eu_countries = self.env.ref('base.europe').country_ids
-        for partner in self:
-            if not partner.vat:
-                continue
-
-            if company.vat_check_vies and partner.commercial_partner_id.country_id in eu_countries:
+        for partner in partners_with_vat:
+            is_eu_country = partner.commercial_partner_id.country_id in eu_countries
+            if company.vat_check_vies and is_eu_country and partner.is_company:
                 # force full VIES online check
                 check_func = self.vies_vat_check
             else:
@@ -159,13 +170,15 @@ class ResPartner(models.Model):
             failed_check = False
             #check with country code as prefix of the TIN
             vat_country_code, vat_number = self._split_vat(partner.vat)
-            vat_guessed_country = self.env['res.country'].search([('code', '=', vat_country_code.upper())])
-            if vat_guessed_country:
+            vat_has_legit_country_code = self.env['res.country'].search([('code', '=', vat_country_code.upper())])
+            if not vat_has_legit_country_code:
+                vat_has_legit_country_code = vat_country_code.lower() in _region_specific_vat_codes
+            if vat_has_legit_country_code:
                 failed_check = not check_func(vat_country_code, vat_number)
 
             #if fails, check with country code from country
             partner_country_code = partner.commercial_partner_id.country_id.code
-            if (not vat_guessed_country or failed_check) and partner_country_code:
+            if (not vat_has_legit_country_code or failed_check) and partner_country_code:
                 failed_check = not check_func(partner_country_code.lower(), partner.vat)
 
             # We allow any number if it doesn't start with a country code and the partner has no country.
@@ -312,7 +325,11 @@ class ResPartner(models.Model):
 
         vat = clean(vat, ' -.').upper().strip()
 
-        if not (len(vat) == 14):
+        # Remove the prefix
+        if vat.startswith("NL"):
+            vat = vat[2:]
+
+        if not len(vat) == 12:
             return False
 
         # Check the format
@@ -324,9 +341,6 @@ class ResPartner(models.Model):
         char_to_int = {k: str(ord(k) - 55) for k in string.ascii_uppercase}
         char_to_int['+'] = '36'
         char_to_int['*'] = '37'
-
-        # Remove the prefix
-        vat = vat[2:]
 
         # 2 possible checks:
         # - For natural persons
@@ -519,6 +533,11 @@ class ResPartner(models.Model):
             vat = vat.replace(" ", "")
             return len(vat) == 11 and vat.isdigit()
         return check_func(vat)
+
+    def format_vat_eu(self, vat):
+        # Foreign companies that trade with non-enterprises in the EU
+        # may have a VATIN starting with "EU" instead of a country code.
+        return vat
 
     def format_vat_ch(self, vat):
         stdnum_vat_format = getattr(stdnum.util.get_cc_module('ch', 'vat'), 'format', None)

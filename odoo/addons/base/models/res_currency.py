@@ -63,7 +63,7 @@ class Currency(models.Model):
 
     @api.depends('rate_ids.rate')
     def _compute_current_rate(self):
-        date = self._context.get('date') or fields.Date.today()
+        date = self._context.get('date') or fields.Date.context_today(self)
         company = self.env['res.company'].browse(self._context.get('company_id')) or self.env.company
         # the subquery selects the last rate before 'date' for the given currency/company
         currency_rates = self._get_rates(company, date)
@@ -236,7 +236,7 @@ class CurrencyRate(models.Model):
     _order = "name desc"
 
     name = fields.Date(string='Date', required=True, index=True,
-                           default=lambda self: fields.Date.today())
+                           default=fields.Date.context_today)
     rate = fields.Float(digits=0, default=1.0, help='The rate of the currency to the currency of rate 1')
     currency_id = fields.Many2one('res.currency', string='Currency', readonly=True, required=True, ondelete="cascade")
     company_id = fields.Many2one('res.company', string='Company',

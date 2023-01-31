@@ -18,7 +18,7 @@ class SaleOrder(models.Model):
     @api.depends('order_line')
     def _compute_is_service_products(self):
         for so in self:
-            so.is_all_service = all(line.product_id.type == 'service' for line in so.order_line)
+            so.is_all_service = all(line.product_id.type == 'service' for line in so.order_line.filtered(lambda x: not x.display_type))
 
     def _compute_amount_total_without_delivery(self):
         self.ensure_one()
@@ -30,14 +30,29 @@ class SaleOrder(models.Model):
         for order in self:
             order.delivery_set = any(line.is_delivery for line in order.order_line)
 
-    @api.onchange('order_line', 'partner_id')
+    @api.onchange('order_line', 'partner_id', 'partner_shipping_id')
     def onchange_order_line(self):
+        self.ensure_one()
         delivery_line = self.order_line.filtered('is_delivery')
         if delivery_line:
             self.recompute_delivery_price = True
 
+    def _get_update_prices_lines(self):
+        """ Exclude delivery lines from price list recomputation based on product instead of carrier """
+        lines = super()._get_update_prices_lines()
+        return lines.filtered(lambda line: not line.is_delivery)
+
     def _remove_delivery_line(self):
-        self.env['sale.order.line'].search([('order_id', 'in', self.ids), ('is_delivery', '=', True)]).unlink()
+        delivery_lines = self.env['sale.order.line'].search([('order_id', 'in', self.ids), ('is_delivery', '=', True)])
+        if not delivery_lines:
+            return
+        to_delete = delivery_lines.filtered(lambda x: x.qty_invoiced == 0)
+        if not to_delete:
+            raise UserError(
+                _('You can not update the shipping costs on an order where it was already invoiced!\n\nThe following delivery lines (product, invoiced quantity and price) have already been processed:\n\n')
+                + '\n'.join(['- %s: %s x %s' % (line.product_id.with_context(display_default_code=False).display_name, line.qty_invoiced, line.price_unit) for line in delivery_lines])
+            )
+        to_delete.unlink()
 
     def set_delivery_line(self, carrier, amount):
 
@@ -76,8 +91,11 @@ class SaleOrder(models.Model):
 
     def _create_delivery_line(self, carrier, price_unit):
         SaleOrderLine = self.env['sale.order.line']
+        context = {}
         if self.partner_id:
             # set delivery detail in the customer language
+            # used in local scope translation process
+            context['lang'] = self.partner_id.lang
             carrier = carrier.with_context(lang=self.partner_id.lang)
 
         # Apply fiscal position
@@ -87,12 +105,12 @@ class SaleOrder(models.Model):
             taxes_ids = self.fiscal_position_id.map_tax(taxes, carrier.product_id, self.partner_id).ids
 
         # Create the sales order line
-        carrier_with_partner_lang = carrier.with_context(lang=self.partner_id.lang)
-        if carrier_with_partner_lang.product_id.description_sale:
-            so_description = '%s: %s' % (carrier_with_partner_lang.name,
-                                        carrier_with_partner_lang.product_id.description_sale)
+
+        if carrier.product_id.description_sale:
+            so_description = '%s: %s' % (carrier.name,
+                                        carrier.product_id.description_sale)
         else:
-            so_description = carrier_with_partner_lang.name
+            so_description = carrier.name
         values = {
             'order_id': self.id,
             'name': so_description,
@@ -108,10 +126,11 @@ class SaleOrder(models.Model):
         else:
             values['price_unit'] = price_unit
         if carrier.free_over and self.currency_id.is_zero(price_unit) :
-            values['name'] += '\n' + 'Free Shipping'
+            values['name'] += '\n' + _('Free Shipping')
         if self.order_line:
             values['sequence'] = self.order_line[-1].sequence + 1
         sol = SaleOrderLine.sudo().create(values)
+        del context
         return sol
 
     def _format_currency_amount(self, amount):

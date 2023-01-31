@@ -140,7 +140,9 @@ class AccountMoveLine(models.Model):
 
         # create the sale lines in batch
         new_sale_lines = self.env['sale.order.line'].create(sale_line_values_to_create)
-        new_sale_lines._onchange_discount()
+        for sol in new_sale_lines:
+            if sol.product_id.expense_policy != 'cost':
+                sol._onchange_discount()
 
         # build result map by replacing index with newly created record of sale.order.line
         result = {}
@@ -205,12 +207,16 @@ class AccountMoveLine(models.Model):
         amount = (self.credit or 0.0) - (self.debit or 0.0)
 
         if self.product_id.expense_policy == 'sales_price':
-            return self.product_id.with_context(
-                partner=order.partner_id.id,
+            product = self.product_id.with_context(
+                partner=order.partner_id,
                 date_order=order.date_order,
                 pricelist=order.pricelist_id.id,
-                uom=self.product_uom_id.id
-            ).price
+                uom=self.product_uom_id.id,
+                quantity=unit_amount
+            )
+            if order.pricelist_id.discount_policy == 'with_discount':
+                return product.price
+            return product.lst_price
 
         uom_precision_digits = self.env['decimal.precision'].precision_get('Product Unit of Measure')
         if float_is_zero(unit_amount, precision_digits=uom_precision_digits):
@@ -226,3 +232,7 @@ class AccountMoveLine(models.Model):
         if currency_id and currency_id != order.currency_id:
             price_unit = currency_id._convert(price_unit, order.currency_id, order.company_id, order.date_order or fields.Date.today())
         return price_unit
+
+    def _get_downpayment_lines(self):
+        # OVERRIDE
+        return self.sale_line_ids.filtered('is_downpayment').invoice_lines.filtered(lambda line: line.move_id._is_downpayment())

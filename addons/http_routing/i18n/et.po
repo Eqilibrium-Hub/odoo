@@ -7,6 +7,7 @@
 # Wanradt Koell <wanradt@gmail.com>, 2020
 # Arma Gedonsky <armagedonsky@hot.ee>, 2020
 # Egon Raamat <egon@avalah.ee>, 2020
+# Algo Kärp <algokarp@gmail.com>, 2021
 # Triine Aavik <triine@avalah.ee>, 2021
 # 
 msgid ""
@@ -71,7 +72,7 @@ msgstr "HTTP Routing"
 #: model_terms:ir.ui.view,arch_db:http_routing.404
 #: model_terms:ir.ui.view,arch_db:http_routing.500
 msgid "Home"
-msgstr ""
+msgstr "Kodu"
 
 #. module: http_routing
 #: model:ir.model.fields,field_description:http_routing.field_ir_http__id
@@ -113,7 +114,7 @@ msgstr ""
 #. module: http_routing
 #: model_terms:ir.ui.view,arch_db:http_routing.403
 msgid "The page you were looking for could not be authorized."
-msgstr ""
+msgstr "Otsitud lehekülge ei saanud autoriseerida."
 
 #. module: http_routing
 #: model_terms:ir.ui.view,arch_db:http_routing.http_error_debug
@@ -138,4 +139,4 @@ msgstr ""
 #. module: http_routing
 #: model_terms:ir.ui.view,arch_db:http_routing.404
 msgid "this page"
-msgstr ""
+msgstr " see leht"

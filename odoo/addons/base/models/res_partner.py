@@ -10,6 +10,7 @@ import threading
 import re
 
 import requests
+from collections import defaultdict
 from lxml import etree
 from random import randint
 from werkzeug import urls
@@ -348,6 +349,13 @@ class Partner(models.Model):
                 result['value'] = {key: convert(self.parent_id[key]) for key in address_fields}
         return result
 
+    @api.onchange('parent_id')
+    def _onchange_parent_id_for_lang(self):
+        # While creating / updating child contact, take the parent lang by default if any
+        # otherwise, fallback to default context / DB lang
+        if self.parent_id:
+            self.lang = self.parent_id.lang or self.env.context.get('default_lang') or self.env.lang
+
     @api.onchange('country_id')
     def _onchange_country_id(self):
         if self.country_id and self.country_id != self.state_id.country_id:
@@ -391,7 +399,7 @@ class Partner(models.Model):
 
     @api.constrains('barcode')
     def _check_barcode_unicity(self):
-        if self.env['res.partner'].search_count([('barcode', '=', self.barcode)]) > 1:
+        if self.barcode and self.env['res.partner'].search_count([('barcode', '=', self.barcode)]) > 1:
             raise ValidationError('An other user already has this barcode')
 
     def _update_fields_values(self, fields):
@@ -566,6 +574,9 @@ class Partner(models.Model):
 
         for partner, vals in zip(partners, vals_list):
             partner._fields_sync(vals)
+            # Lang: propagate from parent if no value was given
+            if 'lang' not in vals and partner.parent_id:
+                partner._onchange_parent_id_for_lang()
             partner._handle_first_contact_creation()
         return partners
 
@@ -663,7 +674,8 @@ class Partner(models.Model):
         name = name.replace('\n\n', '\n')
         name = name.replace('\n\n', '\n')
         if self._context.get('address_inline'):
-            name = name.replace('\n', ', ')
+            splitted_names = name.split("\n")
+            name = ", ".join([n for n in splitted_names if n.strip()])
         if self._context.get('show_email') and partner.email:
             name = "%s <%s>" % (name, partner.email)
         if self._context.get('html_format'):
@@ -747,7 +759,7 @@ class Partner(models.Model):
 
     @api.model
     def _name_search(self, name, args=None, operator='ilike', limit=100, name_get_uid=None):
-        self = self.with_user(name_get_uid or self.env.uid)
+        self = self.with_user(name_get_uid) if name_get_uid else self
         # as the implementation is in SQL, we force the recompute of fields if necessary
         self.recompute(['display_name'])
         self.flush()
@@ -923,13 +935,13 @@ class Partner(models.Model):
         # get the information that will be injected into the display format
         # get the address format
         address_format = self._get_address_format()
-        args = {
+        args = defaultdict(str, {
             'state_code': self.state_id.code or '',
             'state_name': self.state_id.name or '',
             'country_code': self.country_id.code or '',
             'country_name': self._get_country_name(),
             'company_name': self.commercial_company_name or '',
-        }
+        })
         for field in self._formatting_address_fields():
             args[field] = getattr(self, field) or ''
         if without_company:
@@ -941,8 +953,7 @@ class Partner(models.Model):
     def _display_address_depends(self):
         # field dependencies of method _display_address()
         return self._formatting_address_fields() + [
-            'country_id.address_format', 'country_id.code', 'country_id.name',
-            'company_name', 'state_id.code', 'state_id.name',
+            'country_id', 'company_name', 'state_id',
         ]
 
     @api.model

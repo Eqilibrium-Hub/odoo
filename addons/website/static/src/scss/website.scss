@@ -8,6 +8,12 @@ $-seen-urls: ();
     @if $-url and index($-seen-urls, $-url) == null {
         $-seen-urls: append($-seen-urls, $-url);
         @import url("https://fonts.googleapis.com/css?family=#{unquote($-url)}&display=swap");
+    } @else {
+        $-name: o-get-font-info($alias, 'name');
+        $-attachment: o-get-font-info($alias, 'attachment');
+        @if $-attachment {
+            @import url("/web/content/#{$-attachment}/google-font-#{unquote($-name)}");
+        }
     }
 }
 
@@ -25,7 +31,18 @@ $-seen-urls: ();
 
     // 2) The values in the $theme-colors map are already printed by Bootstrap.
 
-    // 3) The values in the $colors map are also printed by Bootstrap.
+    // 3) The values in the $colors map are also printed by Bootstrap. However,
+    // we have color variables which can contain a reference to a color
+    // combination and that is the info we want in that case. As a stable fix,
+    // we'll leave the original variable untouched but print a prefixed version
+    // of the variable with the correct reference value.
+    // TODO adapt in master
+    @each $key in ('menu', 'header-boxed', 'footer', 'copyright') {
+        $-value: map-get($o-color-palette, $key);
+        @if type-of($-value) == 'number' {
+            @include print-variable('bugfixed-#{$key}', $-value);
+        }
+    }
 
     // 4) The Odoo values map, $o-website-values, must be printed.
     @each $key, $value in $o-website-values {
@@ -172,6 +189,23 @@ $-seen-urls: ();
                     @include border-bottom-radius($-inner-border-radius);
                 }
             }
+        }
+    }
+}
+
+body:not(.o_fullscreen) {
+    #oe_main_menu_navbar:not(.o_hidden) + #wrapwrap {
+        .o_header_affixed, .modal {
+            // For these elements, in #wrapwrap, position top should be size of
+            // the navbar.
+            top: $o-navbar-height;
+        }
+        .modal {
+            // As the default bootstrap style no longer uses 'bottom: 0' and
+            // added 'height: 100%' since the V4.2 because of a bug on Android.
+            // We have to adapt the height of the modal by removing the height
+            // of the navbar.
+            height: calc(100vh - #{$o-navbar-height});
         }
     }
 }
@@ -718,7 +752,16 @@ $-transition-duration: 200ms;
     display: block;
     @include o-position-absolute(0, 0, auto, 0);
     position: fixed;
-    background: $light;
+
+    // TODO remove me in master, the $light color makes no sense as is visible
+    // if the header uses rounded corners but is impossible to edit / remove.
+    // As a stable fix, it was decided to not remove it if the header uses a
+    // transparent color, in which case mixing it with $light actually alters
+    // the whole menu color.
+    $-menu-color: o-color('menu');
+    @if $-menu-color and alpha($-menu-color) < 0.95 {
+        background: $light;
+    }
 
     &:not(.o_header_no_transition) {
         transition: transform $-transition-duration;
@@ -761,9 +804,6 @@ $-transition-duration: 200ms;
             }
         }
     }
-}
-#oe_main_menu_navbar + #wrapwrap .o_header_affixed {
-    top: $o-navbar-height;
 }
 
 // Navbar
@@ -979,7 +1019,7 @@ header {
                 }
             }
 
-            .o_connected_user:not(.editor_has_snippets) header & {
+            .o_connected_user:not(.editor_has_snippets):not(.o_fullscreen) header & {
                 top: -$o-navbar-height;
                 padding-top: $o-navbar-height;
             }
@@ -1073,8 +1113,15 @@ header {
                 }
             }
         }
-        body.o_connected_user:not(.editor_has_snippets) #wrapwrap > header {
-            top: $o-navbar-height;
+        body.o_connected_user:not(.o_fullscreen) {
+            &:not(.editor_has_snippets) #wrapwrap > header {
+                top: $o-navbar-height;
+            }
+            &.editor_has_snippets #wrapwrap > header {
+                @if $-hamburger-right {
+                    right: $o-we-sidebar-width;
+                }
+            }
         }
     }
 } @else if o-website-value('header-template') == 'boxed' {
@@ -1128,9 +1175,13 @@ header {
     }
 }
 .o_mega_menu_container_size {
-    @include media-breakpoint-up(md) {
-        left: 50%;
-        transform: translateX(-50%);
+    $-header-template: o-website-value('header-template');
+    @if not index(('sidebar', 'hamburger', 'magazine'), $-header-template) {
+        $bp: if($-header-template == 'minimalist', md, lg);
+        @include media-breakpoint-up($bp) {
+            left: 50%;
+            transform: translateX(-50%);
+        }
     }
 
     $-mm-max-widths: ();
@@ -1222,7 +1273,12 @@ header {
     @include media-breakpoint-up(lg) {
         #wrapwrap.o_footer_effect_enable {
             > main {
-                background-color: $body-bg;
+                @if o-website-value('layout') == 'full' {
+                    // Ensure a transparent snippet at the end of the content
+                    // still appears with the same background when hovering the
+                    // footer during the scroll effect.
+                    background-color: $body-bg;
+                }
                 @if o-website-value('footer-effect') == 'slideout_shadow' {
                     box-shadow: $box-shadow;
                 }
@@ -1236,10 +1292,14 @@ header {
 }
 
 // Language selector
-.js_language_selector {
-    .dropdown-menu {
-        min-width: 0;
+#wrapwrap:not(.o_rtl) {
+    .js_language_selector {
+        .dropdown-menu {
+            min-width: 0;
+        }
     }
+}
+.js_language_selector {
     a.list-inline-item {
         padding: 3px 0;
 
@@ -1260,6 +1320,10 @@ span.list-inline-item.o_add_language:last-child {
 
 // Footer scrolltop button
 @if o-website-value('footer-scrolltop') {
+    #o_footer_scrolltop_wrapper {
+        position: relative;
+        z-index: 1;
+    }
     #o_footer_scrolltop {
         $-footer-color: o-color('footer');
         $-copyright-color: o-color('copyright');
@@ -1392,6 +1456,13 @@ $ribbon-padding: 100px;
     :not(.o_cookies_popup) {
         bottom: 0;
     }
+    .o_cookies_discrete {
+        .js_close_popup.o_cookies_bar_text_button, .o_cookies_bar_text_policy {
+            @include media-breakpoint-down(md) {
+                margin-bottom: 1rem;
+            }
+        }
+    }
 }
 
 .o_website_btn_loading {
@@ -1409,4 +1480,11 @@ $ribbon-padding: 100px;
     // value of "align-self" is "strech". We put this code here to
     // avoid having to create a new scss file in a stable version.
     align-self: flex-start;
+}
+
+// Bottom fixed element (e.g. livechat button)
+.modal-open .o_bottom_fixed_element, .o_bottom_fixed_element_hidden {
+    // Prevent bottom fixed elements from hidding buttons and
+    // hide them if a modal is open.
+    display: none !important;
 }

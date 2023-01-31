@@ -182,12 +182,13 @@ class OdooSuite(unittest.suite.TestSuite):
                 finally:
                     unittest.suite._call_if_exists(result, '_restoreStdout')
                     if currentClass._classSetupFailed is True:
-                        currentClass.doClassCleanups()
-                        if len(currentClass.tearDown_exceptions) > 0:
-                            for exc in currentClass.tearDown_exceptions:
-                                self._createClassOrModuleLevelException(
-                                        result, exc[1], 'setUpClass', className,
-                                        info=exc)
+                        if hasattr(currentClass, 'doClassCleanups'):
+                            currentClass.doClassCleanups()
+                            if len(currentClass.tearDown_exceptions) > 0:
+                                for exc in currentClass.tearDown_exceptions:
+                                    self._createClassOrModuleLevelException(
+                                            result, exc[1], 'setUpClass', className,
+                                            info=exc)
 
         def _createClassOrModuleLevelException(self, result, exc, method_name, parent, info=None):
             errorName = f'{method_name} ({parent})'
@@ -230,14 +231,15 @@ class OdooSuite(unittest.suite.TestSuite):
                                                             className)
                 finally:
                     unittest.suite._call_if_exists(result, '_restoreStdout')
-                    previousClass.doClassCleanups()
-                    if len(previousClass.tearDown_exceptions) > 0:
-                        for exc in previousClass.tearDown_exceptions:
-                            className = unittest.util.strclass(previousClass)
-                            self._createClassOrModuleLevelException(result, exc[1],
-                                                                    'tearDownClass',
-                                                                    className,
-                                                                    info=exc)
+                    if hasattr(previousClass, 'doClassCleanups'):
+                        previousClass.doClassCleanups()
+                        if len(previousClass.tearDown_exceptions) > 0:
+                            for exc in previousClass.tearDown_exceptions:
+                                className = unittest.util.strclass(previousClass)
+                                self._createClassOrModuleLevelException(result, exc[1],
+                                                                        'tearDownClass',
+                                                                        className,
+                                                                        info=exc)
 
 
 class TreeCase(unittest.TestCase):
@@ -745,21 +747,29 @@ class ChromeBrowser():
                     return bin_
 
         elif system == 'Windows':
-            # TODO: handle windows platform: https://stackoverflow.com/a/40674915
-            pass
+            bins = [
+                '%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe',
+                '%ProgramFiles(x86)%\\Google\\Chrome\\Application\\chrome.exe',
+                '%LocalAppData%\\Google\\Chrome\\Application\\chrome.exe',
+            ]
+            for bin_ in bins:
+                bin_ = os.path.expandvars(bin_)
+                if os.path.exists(bin_):
+                    return bin_
 
         raise unittest.SkipTest("Chrome executable not found")
 
     def _spawn_chrome(self, cmd):
-        if os.name != 'posix':
-            return
-
-        pid = os.fork()
+        if os.name == 'nt':
+            proc = subprocess.Popen(cmd, stderr=subprocess.DEVNULL)
+            pid = proc.pid
+        else:
+            pid = os.fork()
         if pid != 0:
             port_file = pathlib.Path(self.user_data_dir, 'DevToolsActivePort')
             for _ in range(100):
                 time.sleep(0.1)
-                if port_file.is_file():
+                if port_file.is_file() and port_file.stat().st_size > 5:
                     with port_file.open('r', encoding='utf-8') as f:
                         self.devtools_port = int(f.readline())
                     break
@@ -838,7 +848,7 @@ class ChromeBrowser():
             version : get chrome and dev tools version
             protocol : get the full protocol
         """
-        command = os.path.join('json', command).strip('/')
+        command = '/'.join(['json', command]).strip('/')
         url = werkzeug.urls.url_join('http://%s:%s/' % (HOST, self.devtools_port), command)
         self._logger.info("Issuing json command %s", url)
         delay = 0.1
@@ -1085,6 +1095,8 @@ class ChromeBrowser():
     def _wait_ready(self, ready_code, timeout=60):
         self._logger.info('Evaluate ready code "%s"', ready_code)
         awaited_result = {'result': {'type': 'boolean', 'value': True}}
+        # catch errors in ready code to prevent opening error dialogs
+        ready_code = "try { %s } catch {}" % ready_code
         ready_id = self._websocket_send('Runtime.evaluate', params={'expression': ready_code})
         last_bad_res = ''
         start_time = time.time()
@@ -1750,8 +1762,11 @@ class Form(object):
             return O2MProxy(self, field)
         return v
 
-    def _get_modifier(self, field, modifier, default=False, modmap=None, vals=None):
-        d = (modmap or self._view['modifiers'])[field].get(modifier, default)
+    def _get_modifier(self, field, modifier, *, default=False, view=None, modmap=None, vals=None):
+        if view is None:
+            view = self._view
+
+        d = (modmap or view['modifiers'])[field].get(modifier, default)
         if isinstance(d, bool):
             return d
 
@@ -1792,7 +1807,7 @@ class Form(object):
                     # we're looking up the "current view" so bits might be
                     # missing when processing o2ms in the parent (see
                     # values_to_save:1450 or so)
-                    f_ = self._view['fields'].get(f, {'type': None})
+                    f_ = view['fields'].get(f, {'type': None})
                     if f_['type'] == 'many2many':
                         # field value should be [(6, _, ids)], we want just the ids
                         field_val = field_val[0][2] if field_val else []
@@ -1932,7 +1947,7 @@ class Form(object):
 
             get_modifier = functools.partial(
                 self._get_modifier,
-                f, modmap=view['modifiers'],
+                f, view=view,
                 vals=modifiers_values or record_values
             )
             descr = fields[f]
@@ -2018,6 +2033,7 @@ class Form(object):
             for k, v in values.items()
             if k in self._view['fields']
         )
+        return result
 
     def _onchange_values(self):
         return self._onchange_values_(self._view['fields'], self._values)
@@ -2161,11 +2177,11 @@ class O2MForm(Form):
             if hasattr(vals, '_changed'):
                 self._changed.update(vals._changed)
 
-    def _get_modifier(self, field, modifier, default=False, modmap=None, vals=None):
+    def _get_modifier(self, field, modifier, *, default=False, view=None, modmap=None, vals=None):
         if vals is None:
             vals = {**self._values, '•parent•': self._proxy._parent._values}
 
-        return super()._get_modifier(field, modifier, default=default, modmap=modmap, vals=vals)
+        return super()._get_modifier(field, modifier, default=default, view=view, modmap=modmap, vals=vals)
 
     def _onchange_values(self):
         values = super(O2MForm, self)._onchange_values()
@@ -2340,7 +2356,7 @@ class O2MProxy(X2MProxy):
         del self._records[index]
         self._parent._perform_onchange([self._field])
 
-class M2MProxy(X2MProxy, collections.Sequence):
+class M2MProxy(X2MProxy, collections.abc.Sequence):
     """ M2MProxy()
 
     Behaves as a :class:`~collection.Sequence` of recordsets, can be
@@ -2465,11 +2481,11 @@ def _get_node(view, f, *arg):
 
 def tagged(*tags):
     """
-    A decorator to tag BaseCase objects
-    Tags are stored in a set that can be accessed from a 'test_tags' attribute
-    A tag prefixed by '-' will remove the tag e.g. to remove the 'standard' tag
+    A decorator to tag BaseCase objects.
+    Tags are stored in a set that can be accessed from a 'test_tags' attribute.
+    A tag prefixed by '-' will remove the tag e.g. to remove the 'standard' tag.
     By default, all Test classes from odoo.tests.common have a test_tags
-    attribute that defaults to 'standard' and also the module technical name
+    attribute that defaults to 'standard' and 'at_install'.
     When using class inheritance, the tags are NOT inherited.
     """
     def tags_decorator(obj):

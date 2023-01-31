@@ -35,7 +35,7 @@ class Note(models.Model):
     _name = 'note.note'
     _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Note"
-    _order = 'sequence'
+    _order = 'sequence, id desc'
 
     def _get_default_stage_id(self):
         return self.env['note.stage'].search([('user_id', '=', self.env.uid)], limit=1)
@@ -43,7 +43,7 @@ class Note(models.Model):
     name = fields.Text(compute='_compute_name', string='Note Summary', store=True)
     user_id = fields.Many2one('res.users', string='Owner', default=lambda self: self.env.uid)
     memo = fields.Html('Note Content')
-    sequence = fields.Integer('Sequence')
+    sequence = fields.Integer('Sequence', default=0)
     stage_id = fields.Many2one('note.stage', compute='_compute_stage_id',
         inverse='_inverse_stage_id', string='Stage', default=_get_default_stage_id)
     stage_ids = fields.Many2many('note.stage', 'note_stage_rel', 'note_id', 'stage_id',
@@ -87,7 +87,7 @@ class Note(models.Model):
 
     @api.model
     def read_group(self, domain, fields, groupby, offset=0, limit=None, orderby=False, lazy=True):
-        if groupby and groupby[0] == "stage_id":
+        if groupby and groupby[0] == "stage_id" and (len(groupby) == 1 or lazy):
             stages = self.env['note.stage'].search([('user_id', '=', self.env.uid)])
             if stages:  # if the user has some stages
                 result = [{  # notes by stage for stages user

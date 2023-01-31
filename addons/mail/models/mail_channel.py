@@ -12,6 +12,7 @@ from odoo.osv import expression
 from odoo.tools import ormcache, formataddr
 from odoo.exceptions import AccessError
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
+from odoo.tools import html_escape
 
 MODERATION_FIELDS = ['moderation', 'moderator_ids', 'moderation_ids', 'moderation_notify', 'moderation_notify_msg', 'moderation_guidelines', 'moderation_guidelines_msg']
 _logger = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ class ChannelPartner(models.Model):
 
     custom_channel_name = fields.Char('Custom channel name')
     partner_id = fields.Many2one('res.partner', string='Recipient', ondelete='cascade')
-    partner_email = fields.Char('Email', related='partner_id.email', readonly=False)
+    partner_email = fields.Char('Email', related='partner_id.email', depends=['partner_id'], readonly=False)
     channel_id = fields.Many2one('mail.channel', string='Channel', ondelete='cascade')
     fetched_message_id = fields.Many2one('mail.message', string='Last Fetched')
     seen_message_id = fields.Many2one('mail.message', string='Last Seen')
@@ -106,7 +107,7 @@ class Channel(models.Model):
     # depends=['...'] is for `test_mail/tests/common.py`, class Moderation, `setUpClass`
     channel_last_seen_partner_ids = fields.One2many('mail.channel.partner', 'channel_id', string='Last Seen', depends=['channel_partner_ids'])
     channel_partner_ids = fields.Many2many('res.partner', 'mail_channel_partner', 'channel_id', 'partner_id', string='Listeners', depends=['channel_last_seen_partner_ids'])
-    channel_message_ids = fields.Many2many('mail.message', 'mail_message_mail_channel_rel')
+    channel_message_ids = fields.Many2many('mail.message', 'mail_message_mail_channel_rel', copy=False)
     is_member = fields.Boolean('Is a member', compute='_compute_is_member')
     # access
     public = fields.Selection([
@@ -648,8 +649,7 @@ class Channel(models.Model):
                 # avoid sending potentially a lot of members for big channels
                 # exclude chat and other small channels from this optimization because they are
                 # assumed to be smaller and it's important to know the member list for them
-                partner_ids = channel_partners.mapped('partner_id').ids
-                info['members'] = [partner_infos[partner] for partner in partner_ids]
+                info['members'] = [channel._channel_info_format_member(partner, partner_infos[partner.id]) for partner in channel_partners.partner_id.sudo().with_prefetch(all_partners.ids)]
             if channel.channel_type != 'channel':
                 info['seen_partners_info'] = [{
                     'id': cp.id,
@@ -660,6 +660,11 @@ class Channel(models.Model):
 
             channel_infos.append(info)
         return channel_infos
+
+    def _channel_info_format_member(self, partner, partner_info):
+        """Returns member information in the context of self channel."""
+        self.ensure_one()
+        return partner_info
 
     def channel_fetch_message(self, last_id=False, limit=20):
         """ Return message values of the current channel.
@@ -712,7 +717,7 @@ class Channel(models.Model):
             channel = self.browse(result[0].get('channel_id'))
             # pin up the channel for the current partner
             if pin:
-                self.env['mail.channel.partner'].search([('partner_id', '=', self.env.user.partner_id.id), ('channel_id', '=', channel.id)]).write({'is_pinned': True})
+                self.env['mail.channel.partner'].search([('partner_id', '=', self.env.user.partner_id.id), ('channel_id', '=', channel.id), ('is_pinned', '=', False)]).write({'is_pinned': True})
             channel._broadcast(self.env.user.partner_id.ids)
         else:
             # create a new one
@@ -748,10 +753,14 @@ class Channel(models.Model):
                     state = 'folded'
                 else:
                     state = 'open'
-            session_state.write({
-                'fold_state': state,
-                'is_minimized': bool(state != 'closed'),
-            })
+            is_minimized = bool(state != 'closed')
+            vals = {}
+            if session_state.fold_state != state:
+                vals['fold_state'] = state
+            if session_state.is_minimized != is_minimized:
+                vals['is_minimized'] = is_minimized
+            if vals:
+                session_state.write(vals)
             self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), session_state.channel_id.channel_info()[0])
 
     @api.model
@@ -775,7 +784,7 @@ class Channel(models.Model):
         """ Hook for website_livechat channel unpin and cleaning """
         self.ensure_one()
         channel_partners = self.env['mail.channel.partner'].search(
-            [('partner_id', '=', self.env.user.partner_id.id), ('channel_id', '=', self.id)])
+            [('partner_id', '=', self.env.user.partner_id.id), ('channel_id', '=', self.id), ('is_pinned', '!=', pinned)])
         self.env['bus.bus'].sendone((self._cr.dbname, 'res.partner', self.env.user.partner_id.id), self.channel_info('unsubscribe' if not pinned else False)[0])
         if channel_partners:
             channel_partners.write({'is_pinned': pinned})
@@ -923,15 +932,21 @@ class Channel(models.Model):
         """
         notifications = []
         for channel in self:
-            data = {
+            data = dict({
                 'info': 'typing_status',
                 'is_typing': is_typing,
-                'partner_id': self.env.user.partner_id.id,
-                'partner_name': self.env.user.partner_id.name,
-            }
+            }, **channel._notify_typing_partner_data())
             notifications.append([(self._cr.dbname, 'mail.channel', channel.id), data]) # notify backend users
             notifications.append([channel.uuid, data]) # notify frontend users
         self.env['bus.bus'].sendmany(notifications)
+
+    def _notify_typing_partner_data(self):
+        """Returns typing partner data for self channel."""
+        self.ensure_one()
+        return {
+            'partner_id': self.env.user.partner_id.id,
+            'partner_name': self.env.user.partner_id.name,
+        }
 
     #------------------------------------------------------
     # Instant Messaging View Specific (Slack Client Action)
@@ -991,7 +1006,7 @@ class Channel(models.Model):
         return channel_info
 
     @api.model
-    def channel_create(self, name, privacy='public'):
+    def channel_create(self, name, privacy='groups'):
         """ Create a channel and add the current partner, broadcast it (to make the user directly
             listen to it when polling)
             :param name : the name of the channel to create
@@ -1100,13 +1115,13 @@ class Channel(models.Model):
     def _execute_command_help(self, **kwargs):
         partner = self.env.user.partner_id
         if self.channel_type == 'channel':
-            msg = _("You are in channel <b>#%s</b>.", self.name)
+            msg = _("You are in channel <b>#%s</b>.", html_escape(self.name))
             if self.public == 'private':
                 msg += _(" This channel is private. People must be invited to join it.")
         else:
             all_channel_partners = self.env['mail.channel.partner'].with_context(active_test=False)
             channel_partners = all_channel_partners.search([('partner_id', '!=', partner.id), ('channel_id', '=', self.id)])
-            msg = _("You are in a private conversation with <b>@%s</b>.", channel_partners[0].partner_id.name if channel_partners else _('Anonymous'))
+            msg = _("You are in a private conversation with <b>@%s</b>.", _(" @").join(html_escape(member.partner_id.name) for member in channel_partners) if channel_partners else _('Anonymous'))
         msg += _("""<br><br>
             Type <b>@username</b> to mention someone, and grab his attention.<br>
             Type <b>#channel</b> to mention a channel.<br>

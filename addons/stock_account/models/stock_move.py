@@ -19,20 +19,30 @@ class StockMove(models.Model):
     account_move_ids = fields.One2many('account.move', 'stock_move_id')
     stock_valuation_layer_ids = fields.One2many('stock.valuation.layer', 'stock_move_id')
 
+    def _filter_anglo_saxon_moves(self, product):
+        return self.filtered(lambda m: m.product_id.id == product.id)
+
     def action_get_account_moves(self):
         self.ensure_one()
         action_data = self.env['ir.actions.act_window']._for_xml_id('account.action_move_journal_line')
         action_data['domain'] = [('id', 'in', self.account_move_ids.ids)]
         return action_data
 
+    def _should_force_price_unit(self):
+        self.ensure_one()
+        return False
+
     def _get_price_unit(self):
         """ Returns the unit price to value this stock move """
         self.ensure_one()
         price_unit = self.price_unit
+        precision = self.env['decimal.precision'].precision_get('Product Price')
         # If the move is a return, use the original move's price unit.
         if self.origin_returned_move_id and self.origin_returned_move_id.sudo().stock_valuation_layer_ids:
-            price_unit = self.origin_returned_move_id.sudo().stock_valuation_layer_ids[-1].unit_cost
-        return not self.company_id.currency_id.is_zero(price_unit) and price_unit or self.product_id.standard_price
+            layers = self.origin_returned_move_id.sudo().stock_valuation_layer_ids
+            quantity = sum(layers.mapped("quantity"))
+            return layers.currency_id.round(sum(layers.mapped("value")) / quantity) if not float_is_zero(quantity, precision_rounding=layers.uom_id.rounding) else 0
+        return price_unit if not float_is_zero(price_unit, precision) or self._should_force_price_unit() else self.product_id.standard_price
 
     @api.model
     def _get_valued_types(self):
@@ -262,11 +272,11 @@ class StockMove(models.Model):
 
 
         for svl in stock_valuation_layers:
-            if not svl.product_id.valuation == 'real_time':
+            if not svl.with_company(svl.company_id).product_id.valuation == 'real_time':
                 continue
             if svl.currency_id.is_zero(svl.value):
                 continue
-            svl.stock_move_id._account_entry_move(svl.quantity, svl.description, svl.id, svl.value)
+            svl.stock_move_id.with_company(svl.company_id)._account_entry_move(svl.quantity, svl.description, svl.id, svl.value)
 
         stock_valuation_layers._check_company()
 
@@ -338,15 +348,8 @@ class StockMove(models.Model):
         self = self.with_company(self.company_id)
         accounts_data = self.product_id.product_tmpl_id.get_product_accounts()
 
-        if self.location_id.valuation_out_account_id:
-            acc_src = self.location_id.valuation_out_account_id.id
-        else:
-            acc_src = accounts_data['stock_input'].id
-
-        if self.location_dest_id.valuation_in_account_id:
-            acc_dest = self.location_dest_id.valuation_in_account_id.id
-        else:
-            acc_dest = accounts_data['stock_output'].id
+        acc_src = self._get_src_account(accounts_data)
+        acc_dest = self._get_dest_account(accounts_data)
 
         acc_valuation = accounts_data.get('stock_valuation', False)
         if acc_valuation:
@@ -361,6 +364,12 @@ class StockMove(models.Model):
             raise UserError(_('You don\'t have any stock valuation account defined on your product category. You must define one before processing this operation.'))
         journal_id = accounts_data['stock_journal'].id
         return journal_id, acc_src, acc_dest, acc_valuation
+
+    def _get_src_account(self, accounts_data):
+        return self.location_id.valuation_out_account_id.id or accounts_data['stock_input'].id
+
+    def _get_dest_account(self, accounts_data):
+        return self.location_dest_id.valuation_in_account_id.id or accounts_data['stock_output'].id
 
     def _prepare_account_move_line(self, qty, cost, credit_account_id, debit_account_id, description):
         """
@@ -462,12 +471,10 @@ class StockMove(models.Model):
         if self.product_id.type != 'product':
             # no stock valuation for consumable products
             return False
-        if self.restrict_partner_id:
+        if self.restrict_partner_id and self.restrict_partner_id != self.company_id.partner_id:
             # if the move isn't owned by the company, we don't make any valuation
             return False
 
-        location_from = self.location_id
-        location_to = self.location_dest_id
         company_from = self._is_out() and self.mapped('move_line_ids.location_id.company_id') or False
         company_to = self._is_in() and self.mapped('move_line_ids.location_dest_id.company_id') or False
 
