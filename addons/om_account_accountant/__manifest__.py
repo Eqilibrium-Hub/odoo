@@ -2,17 +2,17 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
-    'name': 'Odoo 14 Accounting',
+    'name': 'CloudBI ERP Accounting',
     'version': '14.0.5.3.0',
     'category': 'Accounting',
-    'summary': 'Accounting Reports, Asset Management and Account Budget For Odoo14 Community Edition',
+    'summary': 'Accounting Reports, Asset Management and Account Budget For CloudBI ERP Platform',
     'live_test_url': 'https://www.youtube.com/watch?v=Kj4hR7_uNs4',
     'sequence': '1',
-    'website': 'https://www.odoomates.tech',
-    'author': 'Odoo Mates, Odoo SA',
-    'maintainer': 'Odoo Mates',
+    'website': 'https://www.eqilibriumsolutions.com',
+    'author': 'Eqilibrium Solutions',
+    'maintainer': 'Eqilibrium Solutions',
     'license': 'LGPL-3',
-    'support': 'odoomates@gmail.com',
+    'support': 'support@eqilibriumsolutions.com',
     'depends': ['accounting_pdf_reports',
                 'om_account_asset',
                 'om_account_budget',

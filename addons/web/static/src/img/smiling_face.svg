@@ -1,44 +1,227 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="120" height="140" viewBox="0 0 120 140">
-    <defs>
-        <linearGradient id="empty_state_file_happy-c" x1="91.284%" x2="25.707%" y1="100%" y2="0%">
-            <stop offset="0%" stop-color="#875A7B"/>
-            <stop offset="100%" stop-color="#6B4862"/>
-        </linearGradient>
-        <circle id="empty_state_file_happy-b" cx="56" cy="76.614" r="56"/>
-        <filter id="empty_state_file_happy-a" width="112.5%" height="112.5%" x="-6.2%" y="-4.5%" filterUnits="objectBoundingBox">
-            <feOffset dy="2" in="SourceAlpha" result="shadowOffsetOuter1"/>
-            <feGaussianBlur in="shadowOffsetOuter1" result="shadowBlurOuter1" stdDeviation="2"/>
-            <feColorMatrix in="shadowBlurOuter1" values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.106063179 0"/>
-        </filter>
-        <path id="empty_state_file_happy-d" d="M56,122.807018 C86.927946,122.807018 112,97.6721263 112,66.6666667 C112,59.6606665 112,37.4384443 112,0 L0,0 C0,23.774138 0,45.9963602 0,66.6666667 C0,97.6721263 25.072054,122.807018 56,122.807018 Z"/>
-        <path id="empty_state_file_happy-f" d="M22,6.01503759 L84.3146067,6.01503759 L100.5,22.556391 L100.5,114.829574 L100.5,114.829574 C100.5,124.218415 92.8888407,131.829574 83.5,131.829574 L31,131.829574 L31,131.829574 C21.6111593,131.829574 14,124.218415 14,114.829574 L14,14.0150376 L14,14.0150376 C14,9.5967596 17.581722,6.01503759 22,6.01503759 Z"/>
-    </defs>
-    <g fill="none" fill-rule="evenodd" transform="translate(4 2)">
-        <use fill="#000" filter="url(#empty_state_file_happy-a)" xlink:href="#empty_state_file_happy-b"/>
-        <use fill="url(#empty_state_file_happy-c)" xlink:href="#empty_state_file_happy-b"/>
-        <g transform="translate(0 10)">
-            <mask id="empty_state_file_happy-e" fill="#fff">
-                <use xlink:href="#empty_state_file_happy-d"/>
-            </mask>
-            <g mask="url(#empty_state_file_happy-e)">
-                <use fill="#FFF" xlink:href="#empty_state_file_happy-f"/>
-                <path stroke="#A1ACBA" stroke-width="2" d="M99.5,22.9642476 L83.8940075,7.01503759 L22,7.01503759 C18.1340068,7.01503759 15,10.1490443 15,14.0150376 L15,114.829574 C15,123.66613 22.163444,130.829574 31,130.829574 L83.5,130.829574 C92.336556,130.829574 99.5,123.66613 99.5,114.829574 L99.5,22.9642476 Z"/>
-            </g>
-            <path stroke="#A1ACBA" stroke-width="2" d="M84.8002454,27.5045043 C87.4060329,25.0223449 91.4154529,21.2660453 91.7879265,20.6269769 C92.0921888,20.1049414 92.2011803,19.5697888 92.2011803,18.5540391 C92.2011803,17.9213416 92.0599129,17.3140076 91.7659798,16.6778758 C91.2745815,15.6143886 90.3683274,14.4694369 88.765383,12.8381982 C88.2386259,12.302143 86.3189539,10.4445628 84.8002454,8.96835098 L84.8002454,27.5045043 Z" mask="url(#empty_state_file_happy-e)" transform="rotate(135 88.5 18.226)"/>
-            <g fill="#000" mask="url(#empty_state_file_happy-e)" opacity=".07">
-                <g transform="translate(23 81)">
-                    <rect width="46.716" height="6.214"/>
-                    <rect width="68.812" height="6.214" y="8.7"/>
-                    <rect width="42.297" height="6.214" y="20.506"/>
-                    <rect width="52.398" height="6.214" y="31.07"/>
-                </g>
-            </g>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="32.1733360290527mm"
+   height="37.1512031555176mm"
+   viewBox="0 0 32.1733360290526 37.1512031555175"
+   version="1.1"
+   id="svg5"
+   inkscape:export-filename="C:\Users\Pieter\Desktop\odoo_logo_tiny.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="smiling_face.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:snap-global="false"
+     inkscape:zoom="1.87560355943851"
+     inkscape:cx="107.432084454095"
+     inkscape:cy="109.564731291894"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <linearGradient
+       id="empty_state_file_happy-c"
+       x1="102.238075256348"
+       x2="28.791841506958"
+       y1="132.613998413086"
+       y2="20.6139984130859"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         offset="0%"
+         stop-color="#875A7B"
+         id="stop1234" />
+      <stop
+         offset="100%"
+         stop-color="#6B4862"
+         id="stop1236" />
+    </linearGradient>
+    <circle
+       id="empty_state_file_happy-b"
+       cx="56"
+       cy="76.6139984130859"
+       r="56" />
+    <filter
+       id="empty_state_file_happy-a"
+       width="1.08571428571429"
+       height="1.10357142857143"
+       x="-0.0428571428571429"
+       y="-0.0428571428571429"
+       filterUnits="objectBoundingBox">
+      <feOffset
+         dy="2"
+         in="SourceAlpha"
+         result="shadowOffsetOuter1"
+         id="feOffset1240" />
+      <feGaussianBlur
+         in="shadowOffsetOuter1"
+         result="shadowBlurOuter1"
+         stdDeviation="2"
+         id="feGaussianBlur1242" />
+      <feColorMatrix
+         in="shadowBlurOuter1"
+         values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.106063179 0"
+         id="feColorMatrix1244" />
+    </filter>
+    <path
+       id="empty_state_file_happy-d"
+       d="m 56,122.807018 c 30.927946,0 56,-25.1348917 56,-56.1403513 C 112,59.6606665 112,37.4384443 112,0 H 0 c 0,23.774138 0,45.9963602 0,66.6666667 0,31.0054596 25.072054,56.1403513 56,56.1403513 z" />
+    <path
+       id="empty_state_file_happy-f"
+       d="M 22,6.01503759 H 84.3146067 L 100.5,22.556391 v 92.273183 0 c 0,9.388841 -7.6111593,17 -17,17 H 31 v 0 c -9.3888407,0 -17,-7.611159 -17,-17 v -100.8145364 0 c 0,-4.418278 3.581722,-8.00000001 8,-8.00000001 z" />
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-76.6273974056805,-87.7945888480164)">
+    <g
+       id="g1403">
+      <use
+         fill="black"
+         filter="url(#empty_state_file_happy-a)"
+         xlink:href="#empty_state_file_happy-b"
+         id="use1251"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         transform="matrix(0.264583333333333,0,0,0.264583333333333,77.8973974403754,88.0591723462559)"
+         style="fill-rule:evenodd" />
+      <use
+         fill="url(#empty_state_file_happy-c)"
+         xlink:href="#empty_state_file_happy-b"
+         id="use1253"
+         x="0"
+         y="0"
+         width="100%"
+         height="100%"
+         style="fill:blue;fill-rule:evenodd"
+         transform="matrix(0.264583333333333,0,0,0.264583333333333,77.8973974403754,88.0591723462559)" />
+      <g
+         transform="matrix(0.264583333333333,0,0,0.264583333333333,77.8973974403754,90.7050056795892)"
+         id="g1278"
+         style="fill:none;fill-rule:evenodd">
+        <mask
+           id="empty_state_file_happy-e"
+           fill="white">
+          <use
+             xlink:href="#empty_state_file_happy-d"
+             id="use1255"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+        </mask>
+        <g
+           mask="url(#empty_state_file_happy-e)"
+           id="g1262">
+          <use
+             fill="white"
+             xlink:href="#empty_state_file_happy-f"
+             id="use1258"
+             x="0"
+             y="0"
+             width="100%"
+             height="100%" />
+          <path
+             stroke="#a1acba"
+             stroke-width="2"
+             d="M 99.5,22.9642476 83.8940075,7.01503759 H 22 c -3.8659932,0 -7,3.13400671 -7,7.00000001 V 114.829574 c 0,8.836556 7.163444,16 16,16 h 52.5 c 8.836556,0 16,-7.163444 16,-16 z"
+             id="path1260" />
         </g>
-        <path stroke="#A1ACBA" stroke-linecap="round" stroke-width="2" d="M13 14L4 5M18 9L18 0M1 20L10 20"/>
-        <g transform="translate(28.491 43.21)">
-            <path stroke="#A1ACBA" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.5087719,17.7894737 C28.0087719,26.7894737 44.5087719,17.7894737 44.5087719,17.7894737"/>
-            <circle cx="48.009" cy="5.289" r="3.5" fill="#A1ACBA"/>
-            <circle cx="8.009" cy="5.289" r="3.5" fill="#A1ACBA"/>
+        <path
+           stroke="#a1acba"
+           stroke-width="2"
+           d="m 84.8002454,27.5045043 c 2.6057875,-2.4821594 6.6152075,-6.238459 6.9876811,-6.8775274 0.3042623,-0.5220355 0.4132538,-1.0571881 0.4132538,-2.0729378 0,-0.6326975 -0.1412674,-1.2400315 -0.4352005,-1.8761633 C 91.2745815,15.6143886 90.3683274,14.4694369 88.765383,12.8381982 88.2386259,12.302143 86.3189539,10.4445628 84.8002454,8.96835098 Z"
+           mask="url(#empty_state_file_happy-e)"
+           transform="rotate(135,88.5,18.226)"
+           id="path1264" />
+        <g
+           fill="black"
+           mask="url(#empty_state_file_happy-e)"
+           opacity="0.07"
+           id="g1276">
+          <g
+             transform="translate(23,81)"
+             id="g1274">
+            <rect
+               width="46.7159996032715"
+               height="6.21400022506714"
+               id="rect1266"
+               x="0"
+               y="0" />
+            <rect
+               width="68.8119964599609"
+               height="6.21400022506714"
+               y="8.69999980926514"
+               id="rect1268"
+               x="0" />
+            <rect
+               width="42.2970008850098"
+               height="6.21400022506714"
+               y="20.5060005187988"
+               id="rect1270"
+               x="0" />
+            <rect
+               width="52.3979988098145"
+               height="6.21400022506714"
+               y="31.0699996948242"
+               id="rect1272"
+               x="0" />
+          </g>
         </g>
+      </g>
+      <path
+         stroke="#a1acba"
+         stroke-linecap="round"
+         stroke-width="0.529167"
+         d="m 81.3369807737087,91.7633390129226 -2.38125,-2.38125 m 3.7041666666667,1.0583333333333 v -2.38125 m -4.4979166666667,5.2916666666667 h 2.38125"
+         id="path1280"
+         style="fill:none;fill-rule:evenodd" />
+      <g
+         transform="matrix(0.264583333333333,0,0,0.264583333333333,85.4356411903754,99.4918181795892)"
+         id="g1288"
+         style="fill:none;fill-rule:evenodd">
+        <path
+           stroke="#a1acba"
+           stroke-linecap="round"
+           stroke-linejoin="round"
+           stroke-width="2"
+           d="m 11.5087719,17.7894737 c 16.5,9 33,0 33,0"
+           id="path1282" />
+        <circle
+           cx="48.0089988708496"
+           cy="5.28900003433228"
+           r="3.5"
+           fill="#a1acba"
+           id="circle1284" />
+        <circle
+           cx="8.00899982452393"
+           cy="5.28900003433228"
+           r="3.5"
+           fill="#a1acba"
+           id="circle1286" />
+      </g>
     </g>
+  </g>
 </svg>
