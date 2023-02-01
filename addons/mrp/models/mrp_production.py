@@ -693,20 +693,28 @@ class MrpProduction(models.Model):
 
     @api.onchange('lot_producing_id')
     def _onchange_lot_producing(self):
-        if self.product_id.tracking == 'serial':
+        res = self._can_produce_serial_number()
+        if res is not True:
+            return res
+
+    def _can_produce_serial_number(self, sn=None):
+        self.ensure_one()
+        sn = sn or self.lot_producing_id
+        if self.product_id.tracking == 'serial' and sn:
             if self.env['stock.move.line'].search([
-                ('lot_id', '=', self.lot_producing_id.id),
+                ('lot_id', '=', sn.id),
                 ('qty_done', '=', 1),
                 ('state', '=', 'done'),
                 ('location_id.usage', '!=', 'production'),
                 ('location_dest_id.usage', '!=', 'production'),
-            ], limit=1) or self._is_finished_sn_already_produced(self.lot_producing_id):
+            ], limit=1) or self._is_finished_sn_already_produced(sn):
                 return {
                     'warning': {
                         'title': _('Warning'),
-                        'message': _('Existing Serial number (%s). Please correct the serial numbers encoded.') % self.lot_producing_id.name
+                        'message': _('Serial number (%s) has already been produced.') % sn.name,
                     }
                 }
+        return True
 
     @api.onchange('bom_id')
     def _onchange_workorder_ids(self):
@@ -992,20 +1000,12 @@ class MrpProduction(models.Model):
     def _update_raw_moves(self, factor):
         self.ensure_one()
         update_info = []
-        move_to_unlink = self.env['stock.move']
         for move in self.move_raw_ids.filtered(lambda m: m.state not in ('done', 'cancel')):
             old_qty = move.product_uom_qty
             new_qty = old_qty * factor
-            if new_qty > 0:
-                move.write({'product_uom_qty': new_qty})
-                move._action_assign()
-                update_info.append((move, old_qty, new_qty))
-            else:
-                if move.quantity_done > 0:
-                    raise UserError(_('Lines need to be deleted, but can not as you still have some quantities to consume in them. '))
-                move._action_cancel()
-                move_to_unlink |= move
-        move_to_unlink.unlink()
+            move.write({'product_uom_qty': new_qty})
+            move._action_assign()
+            update_info.append((move, old_qty, new_qty))
         return update_info
 
     def _get_ready_to_produce_state(self):
@@ -1489,18 +1489,6 @@ class MrpProduction(models.Model):
                         new_moves_vals.append(move_vals[0])
                 new_moves = self.env['stock.move'].create(new_moves_vals)
             backorders |= backorder_mo
-            first_wo = self.env['mrp.workorder']
-            for old_wo, wo in zip(production.workorder_ids, backorder_mo.workorder_ids):
-                wo.qty_produced = max(old_wo.qty_produced - old_wo.qty_producing, 0)
-                if wo.product_tracking == 'serial':
-                    wo.qty_producing = 1
-                else:
-                    wo.qty_producing = wo.qty_remaining
-                if wo.qty_producing == 0:
-                    wo.action_cancel()
-                if not first_wo and wo.state != 'cancel':
-                    first_wo = wo
-            first_wo.state = 'ready'
 
             # We need to adapt `duration_expected` on both the original workorders and their
             # backordered workorders. To do that, we use the original `duration_expected` and the
@@ -1513,8 +1501,19 @@ class MrpProduction(models.Model):
 
         # As we have split the moves before validating them, we need to 'remove' the excess reservation
         if not close_mo:
-            self.move_raw_ids.filtered(lambda m: not m.additional)._do_unreserve()
-            self.move_raw_ids.filtered(lambda m: not m.additional)._action_assign()
+            raw_moves = self.move_raw_ids.filtered(lambda m: not m.additional)
+            raw_moves._do_unreserve()
+            for sml in raw_moves.move_line_ids:
+                try:
+                    q = self.env['stock.quant']._update_reserved_quantity(sml.product_id, sml.location_id, sml.qty_done,
+                                                                          lot_id=sml.lot_id, package_id=sml.package_id,
+                                                                          owner_id=sml.owner_id, strict=True)
+                    reserved_qty = sum([x[1] for x in q])
+                    reserved_qty = sml.product_id.uom_id._compute_quantity(reserved_qty, sml.product_uom_id)
+                except UserError:
+                    reserved_qty = 0
+                sml.with_context(bypass_reservation_update=True).product_uom_qty = reserved_qty
+            raw_moves._recompute_state()
         # Confirm only productions with remaining components
         backorders.filtered(lambda mo: mo.move_raw_ids).action_confirm()
         backorders.filtered(lambda mo: mo.move_raw_ids).action_assign()
@@ -1524,6 +1523,19 @@ class MrpProduction(models.Model):
         backorders.move_raw_ids.move_line_ids.filtered(lambda ml: ml.product_id.tracking == 'serial' and ml.product_qty == 0).unlink()
         backorders.move_raw_ids._recompute_state()
 
+        for production, backorder_mo in zip(self, backorders):
+            first_wo = self.env['mrp.workorder']
+            for old_wo, wo in zip(production.workorder_ids, backorder_mo.workorder_ids):
+                wo.qty_produced = max(old_wo.qty_produced - old_wo.qty_producing, 0)
+                if wo.product_tracking == 'serial':
+                    wo.qty_producing = 1
+                else:
+                    wo.qty_producing = wo.qty_remaining
+                if wo.qty_producing == 0:
+                    wo.action_cancel()
+                if not first_wo and wo.state != 'cancel':
+                    first_wo = wo
+            first_wo.state = 'ready'
         return backorders
 
     def button_mark_done(self):
@@ -1787,8 +1799,14 @@ class MrpProduction(models.Model):
                         ('state', '=', 'done'),
                         ('location_dest_id.scrap_location', '=', True)
                     ])
+                    unremoved = self.env['stock.move.line'].search_count([
+                        ('lot_id', '=', move_line.lot_id.id),
+                        ('state', '=', 'done'),
+                        ('location_id.scrap_location', '=', True),
+                        ('location_dest_id.scrap_location', '=', False),
+                    ])
                     # Either removed or unbuild
-                    if not ((duplicates_returned or removed) and duplicates - duplicates_returned - removed == 0):
+                    if not ((duplicates_returned or removed) and duplicates - duplicates_returned - removed + unremoved == 0):
                         raise UserError(message)
                 # Check presence of same sn in current production
                 duplicates = co_prod_move_lines.filtered(lambda ml: ml.qty_done and ml.lot_id == move_line.lot_id) - move_line

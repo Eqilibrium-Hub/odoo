@@ -755,7 +755,7 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"        أضف معلومات عندما نقوم ببناء الوصف لعميل مهتم لتضمين\n"
+"        إضافة المعلومات عندما نقوم ببناء الوصف لعميل مهتم لتضمين\n"
 "        الأسئلة والإجابات المرتبطة بالتسجيلات.\n"
 "    "
 
@@ -4589,8 +4589,8 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"من العديد من الدول، تُستخدم الإشعارات المدينة لزيادة الكميات لفاتورة موجودة بالفعل\n"
-"or in some specific cases to cancel a credit noteأو في بعض الحالات المحددة لإلغاء إشعار دائن.\n"
+"في العديد من الدول، تُستخدم الإشعارات المدينة لزيادة البالغ لفاتورة موجودة بالفعل\n"
+"أو في بعض الحالات المحددة لإلغاء إشعار دائن.\n"
 "الأمر أشبه بفاتورة عادية، ولكن علينا تتبع الرابط الذي يحتوي على الفاتورة الأصلية.\n"
 "المعالج المُستخدَم شبيه بمعالج الإشعار الدائن.\n"
 "    "
@@ -8029,7 +8029,7 @@ msgid ""
 "    "
 msgstr ""
 "\n"
-"يقوم هذا التطبيق بتنفيذ نظام الالجداول الزمنية.\n"
+"يقوم هذا التطبيق بتنفيذ نظام الجداول الزمنية.\n"
 "==========================================\n"
 "\n"
 "بوسع كل موظف تروميز وتتبع الوقت المقضي في المشاريع المختلفة.\n"
@@ -9510,7 +9510,7 @@ msgstr ""
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.report_irmodeloverview
 msgid "<strong>Inherited</strong>"
-msgstr "<strong>وارث</strong>"
+msgstr "<strong>موروث</strong>"
 
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.report_irmodeloverview
@@ -9609,7 +9609,7 @@ msgstr "<u><strong>الأمان</strong></u>"
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.report_irmodeloverview
 msgid "<u><strong>Views</strong></u>"
-msgstr "<u><strong>استعراض</strong></u>"
+msgstr "<u><strong>نوافذ العرض</strong></u>"
 
 #. module: base
 #: model:ir.module.module,description:base.module_l10n_mx_edi_landing
@@ -10271,8 +10271,8 @@ msgid ""
 "Action %(action_reference)s (id: %(action_id)s) does not exist for button of"
 " type action."
 msgstr ""
-"الإجراء %(action_reference)s (المعرّف: %(action_id)s) غير موجود للإجراء من "
-"نوع الزر."
+"الإجراء %(action_reference)s (المعرّف: %(action_id)s) غير موجود للزر من نوع "
+"إجراء. "
 
 #. module: base
 #: model:ir.model.fields,field_description:base.field_ir_actions_act_url__help
@@ -11253,12 +11253,12 @@ msgstr "الموافقات"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_approvals_purchase
 msgid "Approvals - Purchase"
-msgstr "الموافقات - الشراء "
+msgstr "الموافقات - المشتريات "
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_approvals_purchase_stock
 msgid "Approvals - Purchase - Stock"
-msgstr "الموافقات - الشراء - المخزون "
+msgstr "الموافقات - المشتريات - المخزون "
 
 #. module: base
 #: model:ir.actions.act_window,name:base.open_module_tree
@@ -12595,10 +12595,10 @@ msgid ""
 "a new contact should be created under that new company. You can use the "
 "\"Discard\" button to abandon this change."
 msgstr ""
-"Changing the company of a contact should only be done if it was never "
-"correctly set. If an existing contact starts working for a new company then "
-"a new contact should be created under that new company. You can use the "
-"\"Discard\" button to abandon this change."
+"يجب أن يتم تغيير شركة جهة الاتصال فقط إذا لم يتم ضبطها بشكل صحيح منذ "
+"البداية. إذا باشرت إحدى جهات الاتصال الموجودة بالعمل لصالح شركة جديدة، "
+"سيتوجب حينها إنشاء جهة اتصال جديدة تحت الشركة الجديدة. بإمكانك استخدام زر "
+"\"إهمال\" لطرح هذا التغيير. "
 
 #. module: base
 #: code:addons/base/models/ir_model.py:0
@@ -15540,7 +15540,7 @@ msgstr ""
 #: code:addons/base/models/ir_ui_menu.py:0
 #, python-format
 msgid "Error! You cannot create recursive menus."
-msgstr "خطأ! لا يمكنك إنشاء قوائم تكرارية."
+msgstr "خطأ! لا يمكنك إنشاء قوائم متداخلة. "
 
 #. module: base
 #: model:res.country,name:base.ee
@@ -19021,8 +19021,8 @@ msgstr "LGPL الإصدار 3"
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_l10n_lt_reports
-msgid "LT - Accounting Reports"
-msgstr "LT - Accounting Reports"
+msgid "Lithuania - Accounting Reports"
+msgstr ""
 
 #. module: base
 #: code:addons/base/models/ir_ui_view.py:0
@@ -20689,19 +20689,19 @@ msgstr "الكائن"
 #: code:addons/base/models/ir_model.py:0
 #, python-format
 msgid "Model %s does not exist"
-msgstr "الكائن %s غير موجود"
+msgstr "النموذج %s غير موجود! "
 
 #. module: base
 #: code:addons/base/models/ir_model.py:0
 #, python-format
 msgid "Model %s does not exist!"
-msgstr "الكائن %s غير موجود!"
+msgstr "النموذج %s غير موجود! "
 
 #. module: base
 #: code:addons/base/models/ir_model.py:0
 #, python-format
 msgid "Model '%s' contains module data and cannot be removed."
-msgstr "يحتوي هذا الكائن '%s' على بيانات موديول ولا يمكن إزالته."
+msgstr "يحتوي النموذج '%s' على بيانات تطبيق ولا يمكن إزالته. "
 
 #. module: base
 #: model:ir.model,name:base.model_ir_model_access
@@ -20719,7 +20719,7 @@ msgstr "قيود النموذج "
 #: model_terms:ir.ui.view,arch_db:base.view_model_constraint_form
 #: model_terms:ir.ui.view,arch_db:base.view_model_constraint_list
 msgid "Model Constraints"
-msgstr "قيود الكائن"
+msgstr "قيود النموذج "
 
 #. module: base
 #: model:ir.model,name:base.model_ir_model_data
@@ -20752,7 +20752,7 @@ msgstr "اسم الكائن"
 #. module: base
 #: model:ir.actions.report,name:base.report_ir_model_overview
 msgid "Model Overview"
-msgstr "مستعرض الكائن"
+msgstr "نظرة عامة على النموذج "
 
 #. module: base
 #: model:ir.model.fields,help:base.field_ir_actions_server__crud_model_id
@@ -20785,7 +20785,7 @@ msgstr "الكائن الذي تجرى عليه إجراءات السيرفر."
 #: code:addons/model.py:0 code:addons/model.py:0
 #, python-format
 msgid "Model:"
-msgstr "الكائن:"
+msgstr "النموذج: "
 
 #. module: base
 #: model:ir.actions.act_window,name:base.action_model_model
@@ -20821,12 +20821,12 @@ msgstr "الموديول"
 #: model_terms:ir.ui.view,arch_db:base.view_module_category_form
 #: model_terms:ir.ui.view,arch_db:base.view_module_category_tree
 msgid "Module Category"
-msgstr "فئة الموديول"
+msgstr "فئة التطبيق "
 
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.module_view_kanban
 msgid "Module Info"
-msgstr "معلومات الموديول"
+msgstr "معلومات التطبيق "
 
 #. module: base
 #: model:ir.model.fields,field_description:base.field_ir_module_module__shortdesc
@@ -20847,7 +20847,7 @@ msgstr "إزالة الموديول"
 #. module: base
 #: model:ir.actions.act_window,name:base.action_view_base_module_update
 msgid "Module Update"
-msgstr "تحديث الموديول"
+msgstr "تحديث التطبيق "
 
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.view_base_module_update
@@ -20857,7 +20857,7 @@ msgstr "نتيجة تحديث الموديول"
 #. module: base
 #: model:ir.actions.act_window,name:base.action_view_base_module_upgrade_install
 msgid "Module Upgrade Install"
-msgstr "تثبيت ترقية الموديول"
+msgstr "تثبيت ترقية التطبيق "
 
 #. module: base
 #: model:ir.model,name:base.model_ir_module_module_dependency
@@ -20867,7 +20867,7 @@ msgstr "اعتماد الموديول على الموديولات الأخرى"
 #. module: base
 #: model:ir.model,name:base.model_ir_module_module_exclusion
 msgid "Module exclusion"
-msgstr "استثناء الموديول"
+msgstr "استثناء التطبيق "
 
 #. module: base
 #: code:addons/convert.py:0
@@ -20876,7 +20876,7 @@ msgid ""
 "Module loading %s failed: file %s could not be processed:\n"
 " %s"
 msgstr ""
-"فشل تحميل الموديول %s: تعذّرت معالجة الملف %s:\n"
+"فشل تحميل التطبيق %s: تعذّرت معالجة الملف %s:\n"
 " %s"
 
 #. module: base
@@ -20902,7 +20902,7 @@ msgstr ""
 #. module: base
 #: model:ir.model.fields,field_description:base.field_ir_module_category__module_ids
 msgid "Modules"
-msgstr "الموديولات"
+msgstr "التطبيقات "
 
 #. module: base
 #: code:addons/base/models/ir_module.py:0
@@ -21002,7 +21002,7 @@ msgstr "دليل محاسبي متعدد اللغات"
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.view_attachment_search
 msgid "My Document(s)"
-msgstr "مستنداتي (s)"
+msgstr "مستنداتي "
 
 #. module: base
 #: model_terms:ir.ui.view,arch_db:base.ir_filters_view_search
@@ -21476,12 +21476,12 @@ msgstr "عدد المجموعات التي تنطبق على المستخدم ا
 #. module: base
 #: model:ir.model.fields,field_description:base.field_base_module_update__added
 msgid "Number of modules added"
-msgstr "عدد الموديولات المضافة"
+msgstr "عدد التطبيقات المضافة "
 
 #. module: base
 #: model:ir.model.fields,field_description:base.field_base_module_update__updated
 msgid "Number of modules updated"
-msgstr "عدد الموديولات المحدثة"
+msgstr "عدد التطبيقات المحدثة "
 
 #. module: base
 #: model:ir.model.fields,help:base.field_res_users__rules_count
@@ -23688,7 +23688,7 @@ msgstr "مسار"
 #: code:addons/base/models/ir_qweb_fields.py:0
 #, python-format
 msgid "Pattern to format"
-msgstr "Pattern to format"
+msgstr "النمط لتنسيقه "
 
 #. module: base
 #: model:ir.module.module,summary:base.module_hr_payroll_account_sepa
@@ -24536,7 +24536,7 @@ msgstr "جودة"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_quality_control_picking_batch
 msgid "Quality - Batch Transfer"
-msgstr ""
+msgstr "الجودة - النقل على دفعات "
 
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_quality
@@ -24859,19 +24859,19 @@ msgstr "السير الذاتية ورسائل التوظيف من المستن�
 #: code:addons/models.py:0
 #, python-format
 msgid "Recursion Detected."
-msgstr "Recursion Detected."
+msgstr "تم رصد تداخل. "
 
 #. module: base
 #: code:addons/base/models/ir_module.py:0
 #, python-format
 msgid "Recursion error in modules dependencies !"
-msgstr "خطأ تداخل في متطلبات الوحدات البرمجية!"
+msgstr "خطأ تداخل في متطلبات التطبيقات! "
 
 #. module: base
 #: code:addons/base/models/ir_actions.py:0
 #, python-format
 msgid "Recursion found in child server actions"
-msgstr "Recursion found in child server actions"
+msgstr "تم رصد تداخل في إجراءات الخادم التابع "
 
 #. module: base
 #: model:ir.model.fields,field_description:base.field_ir_model_data__reference
@@ -26839,7 +26839,7 @@ msgstr "دعم المسارات الحية: البث، المشاركة، يوت
 #. module: base
 #: model:ir.module.module,summary:base.module_quality_control_picking_batch
 msgid "Support of quality control into batch transfers"
-msgstr ""
+msgstr "دعم التحكم في الجودة في التحويل على دفعات "
 
 #. module: base
 #: model:res.country,name:base.sr
@@ -27332,8 +27332,8 @@ msgstr "الموديول `%s` غير متوفر حاليًا، برجاء الم
 #. module: base
 #: code:addons/base/models/ir_module.py:0
 #, python-format
-msgid "The `base` module cannot be uninstalled"
-msgstr "لا يمكن إزالة موديول `القاعدة`"
+msgid "Those modules cannot be uninstalled: %s"
+msgstr ""
 
 #. module: base
 #: model:ir.model.fields,help:base.field_res_partner_category__active
@@ -29626,7 +29626,7 @@ msgstr "Wallis and Futuna"
 #. module: base
 #: model:ir.module.module,shortdesc:base.module_stock_picking_batch
 msgid "Warehouse Management: Batch Transfer"
-msgstr ""
+msgstr "إدارة المستودع: النقل على دفعات "
 
 #. module: base
 #: code:addons/base/models/ir_mail_server.py:0
@@ -29725,7 +29725,7 @@ msgstr "صورة أيقونة الويب"
 #: model:ir.module.module,shortdesc:base.module_http_routing
 #: model:ir.module.module,summary:base.module_http_routing
 msgid "Web Routing"
-msgstr "قشلالا"
+msgstr "مسار الويب "
 
 #. module: base
 #: model:ir.module.module,summary:base.module_test_web_cohort
@@ -30168,7 +30168,7 @@ msgstr ""
 #: code:addons/base/models/res_partner.py:0
 #, python-format
 msgid "You can not create recursive tags."
-msgstr "لا يمكنك إنشاء وسوم تكرارية."
+msgstr "لا يمكنك إنشاء علامات تصنيف متداخلة. "
 
 #. module: base
 #: model:ir.model.constraint,message:base.constraint_res_users_login_key
@@ -30218,19 +30218,19 @@ msgstr ""
 #: code:addons/base/models/res_partner.py:0
 #, python-format
 msgid "You cannot create recursive Partner hierarchies."
-msgstr "لا يمكنك إنشاء تسلسلات هرمية متكررة للشركاء."
+msgstr "لا يمكنك إنشاء تسلسلات هرمية متداخلة للشركاء. "
 
 #. module: base
 #: code:addons/base/models/res_company.py:0
 #, python-format
 msgid "You cannot create recursive companies."
-msgstr "لا يمكنك إنشاء شركات تكرارية."
+msgstr "لا يمكنك إنشاء شركات متداخلة. "
 
 #. module: base
 #: code:addons/base/models/ir_ui_view.py:0
 #, python-format
 msgid "You cannot create recursive inherited views."
-msgstr "لا يمكنك إنشاء أدوات عرض موروثة متكررة."
+msgstr "لا يمكنك إنشاء أدوات عرض موروثة متداخلة. "
 
 #. module: base
 #: code:addons/base/models/res_users.py:0
@@ -30941,3 +30941,9 @@ msgstr "نعم"
 #: model:res.country,name:base.ax
 msgid "Åland Islands"
 msgstr "جزر آلاند"
+
+#. module: base
+#: code:addons/base/models/res_currency.py:0
+#, python-format
+msgid "This currency is set on a company and therefore must be active."
+msgstr ""
